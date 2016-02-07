@@ -80,6 +80,7 @@ int main(int argc, char** argv){
         return 1;
     }
 
+
     SDL_Texture* GrassTex = SDL_CreateTextureFromSurface(rend, GRASS);
     SDL_Texture* Death_Ftex = SDL_CreateTextureFromSurface(rend, Death_F);
     SDL_Texture* Death_Btex = SDL_CreateTextureFromSurface(rend, Death_B);
