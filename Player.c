@@ -1,10 +1,12 @@
-
+#include "math.h"
 #include "stdlib.h"
 #include "Player.h"
 #include "string.h"
 #include "Level.h"
 
-Player* PLR_Initialize(Level* lvl, Gender gender, int weight, int height, const char* name) {
+#define ACCEPTABLE_ERROR 5
+
+Player* PLR_Initialize(SDL_Renderer* rend, Level* lvl, Gender gender, int weight, int height, const char* name) {
     
     Player* player = malloc(sizeof(Player));
     if (!player) {
@@ -38,6 +40,91 @@ Player* PLR_Initialize(Level* lvl, Gender gender, int weight, int height, const 
         player->ISF = 5;
     }
     
+    Uint8 r, g, b, a;
+    SDL_GetRenderDrawColor(rend, &r, &g, &b, &a);
+    SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_TRANSPARENT);
+    
+    Uint32 pixformat;
+    if (gender == GEN_MALE) {
+        SDL_Surface* ManRsurf = SDL_LoadBMP("Man_R.bmp");
+        SDL_SetColorKey(ManRsurf, SDL_TRUE, SDL_MapRGB(ManRsurf->format, 255, 0, 255));
+        player->entity.tex[DIR_RIGHT] = SDL_CreateTextureFromSurface(rend, ManRsurf);
+        SDL_QueryTexture(player->entity.tex[DIR_RIGHT], &pixformat, NULL, NULL, NULL);
+        player->entity.tex[DIR_LEFT] = SDL_CreateTexture(rend, pixformat, SDL_TEXTUREACCESS_TARGET, ManRsurf->w, ManRsurf->h);
+        SDL_SetTextureBlendMode(player->entity.tex[DIR_LEFT], SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(rend, player->entity.tex[DIR_LEFT]);
+        SDL_RenderClear(rend);
+        SDL_RenderCopyEx(rend, player->entity.tex[DIR_RIGHT], NULL, NULL, 0, NULL, SDL_FLIP_HORIZONTAL);
+        SDL_SetRenderTarget(rend, NULL);
+        SDL_FreeSurface(ManRsurf);
+        
+        SDL_Surface* ManFsurf = SDL_LoadBMP("Man_F.bmp");
+        SDL_SetColorKey(ManFsurf, SDL_TRUE, SDL_MapRGB(ManFsurf->format, 255, 0, 255));
+        player->entity.tex[DIR_DOWN] = SDL_CreateTextureFromSurface(rend, ManFsurf);
+        SDL_FreeSurface(ManFsurf);
+        
+        SDL_Surface* ManBsurf = SDL_LoadBMP("Man_B.bmp");
+        SDL_SetColorKey(ManBsurf, SDL_TRUE, SDL_MapRGB(ManBsurf->format, 255, 0, 255));
+        player->entity.tex[DIR_UP] = SDL_CreateTextureFromSurface(rend, ManBsurf);
+        SDL_FreeSurface(ManBsurf);
+    }
+    else {
+        SDL_Surface* WomanRsurf = SDL_LoadBMP("Woman_R.bmp");
+        SDL_SetColorKey(WomanRsurf, SDL_TRUE, SDL_MapRGB(WomanRsurf->format, 255, 0, 255));
+        player->entity.tex[DIR_RIGHT] = SDL_CreateTextureFromSurface(rend, WomanRsurf);
+        SDL_QueryTexture(player->entity.tex[DIR_RIGHT], &pixformat, NULL, NULL, NULL);
+        player->entity.tex[DIR_LEFT] = SDL_CreateTexture(rend, pixformat, SDL_TEXTUREACCESS_TARGET, WomanRsurf->w, WomanRsurf->h);
+        SDL_SetTextureBlendMode(player->entity.tex[DIR_LEFT], SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(rend, player->entity.tex[DIR_LEFT]);
+        SDL_RenderClear(rend);
+        SDL_RenderCopyEx(rend, player->entity.tex[DIR_RIGHT], NULL, NULL, 0, NULL, SDL_FLIP_HORIZONTAL);
+        SDL_SetRenderTarget(rend, NULL);
+        SDL_FreeSurface(WomanRsurf);
+        
+        SDL_Surface* WomanFsurf = SDL_LoadBMP("Woman_F.bmp");
+        SDL_SetColorKey(WomanFsurf, SDL_TRUE, SDL_MapRGB(WomanFsurf->format, 255, 0, 255));
+        player->entity.tex[DIR_DOWN] = SDL_CreateTextureFromSurface(rend, WomanFsurf);
+        SDL_FreeSurface(WomanFsurf);
+        
+        SDL_Surface* WomanBsurf = SDL_LoadBMP("Woman_B.bmp");
+        SDL_SetColorKey(WomanBsurf, SDL_TRUE, SDL_MapRGB(WomanBsurf->format, 255, 0, 255));
+        player->entity.tex[DIR_UP] = SDL_CreateTextureFromSurface(rend, WomanBsurf);
+        SDL_FreeSurface(WomanBsurf);
+    }
+    
+    SDL_Surface* DeathRsurf = SDL_LoadBMP("Death_R.bmp");
+    SDL_SetColorKey(DeathRsurf, SDL_TRUE, SDL_MapRGB(DeathRsurf->format, 255, 0, 255));
+    player->death.tex[DIR_RIGHT] = SDL_CreateTextureFromSurface(rend, DeathRsurf);
+    SDL_QueryTexture(player->entity.tex[DIR_RIGHT], &pixformat, NULL, NULL, NULL);
+    player->death.tex[DIR_LEFT] = SDL_CreateTexture(rend, pixformat, SDL_TEXTUREACCESS_TARGET, DeathRsurf->w, DeathRsurf->h);
+    SDL_SetTextureBlendMode(player->death.tex[DIR_LEFT], SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(rend, player->death.tex[DIR_LEFT]);
+    SDL_RenderClear(rend);
+    SDL_RenderCopyEx(rend, player->death.tex[DIR_RIGHT], NULL, NULL, 0, NULL, SDL_FLIP_HORIZONTAL);
+
+    SDL_SetRenderTarget(rend, NULL);
+    SDL_FreeSurface(DeathRsurf);
+    
+    SDL_Surface* DeathFsurf = SDL_LoadBMP("Death_F.bmp");
+    SDL_SetColorKey(DeathFsurf, SDL_TRUE, SDL_MapRGB(DeathFsurf->format, 255, 0, 255));
+    player->death.tex[DIR_DOWN] = SDL_CreateTextureFromSurface(rend, DeathFsurf);
+    SDL_FreeSurface(DeathFsurf);
+    
+    SDL_Surface* DeathBsurf = SDL_LoadBMP("Death_B.bmp");
+    SDL_SetColorKey(DeathBsurf, SDL_TRUE, SDL_MapRGB(DeathBsurf->format, 255, 0, 255));
+    player->death.tex[DIR_UP] = SDL_CreateTextureFromSurface(rend, DeathBsurf);
+    SDL_FreeSurface(DeathBsurf);
+    
+    player->entity.width = lvl->cellwidth; //- 2 * ACCEPTABLE_ERROR;
+    player->entity.height = lvl->cellheight; // - 2 * ACCEPTABLE_ERROR;
+    
+    player->entity.facing = DIR_DOWN;
+    player->defaultx = lvl->totwidth / 2;
+    player->defaulty = player->entity.height / 2;
+    player->deftilex = lvl->width / 2;
+    player->deftiley = 0;
+    player->entity.speed = PLAYER_SPEED;
+    
     player->glucose = 130;
     player->hydration = 72;
     player->illness = 0;
@@ -45,9 +132,25 @@ Player* PLR_Initialize(Level* lvl, Gender gender, int weight, int height, const 
     player->sensitivity = 1.0;
     player->insulin = 1;
     
-    player->day = 0;
+    player->day = -1;
+    
+    PLR_StartNewDay(player);
     
     return player;
+}
+
+void PLR_DestroyPlayer(Player* player) {
+    if (player) {
+        int i;
+        for (i = 0; i < 4; i++) {
+            if (player->entity.tex[i]) {
+                SDL_DestroyTexture(player->entity.tex[i]);
+            }
+            if (player->death.tex[i]) {
+                SDL_DestroyTexture(player->death.tex[i]);
+            }
+        }
+    }
 }
 
 void PLR_StartNewDay(Player* player) {
@@ -118,6 +221,13 @@ void PLR_StartNewDay(Player* player) {
     player->lasthour = 0;
     player->day++;
     
+    player->entity.facing = DIR_DOWN;
+    player->entity.x = player->defaultx;
+    player->entity.y = player->defaulty;
+    player->entity.tilex = player->deftilex;
+    player->entity.tiley = player->deftiley;
+    player->entity.speed = PLAYER_SPEED;
+    
     /* List of attributes */
     // player->glucose = ?
     // player->insulin = ?
@@ -125,6 +235,11 @@ void PLR_StartNewDay(Player* player) {
     // player->CHO = ?
     // player->hydration = ?
     
+}
+
+void PLR_UpdateAll(Player* player, Level* lvl, time_t frames) {
+//    PLR_UpdateHealth(player, frames);
+    PLR_MoveEntity((MovingEntity*)player, lvl, frames, 1);
 }
 
 void PLR_UpdateHealth(Player* player, time_t frames) {
@@ -229,7 +344,61 @@ void PLR_UpdateHealth(Player* player, time_t frames) {
     player->sensitivity = sensitivity;
 }
 
+void PLR_ConsumePickup(Player* player, Pickup* pickup) {
+    if (!pickup->active) {
+        return;
+    }
+    
+    pickup->active = 0;
+    player->CHO += pickup->CHOmod;
+    player->hydration += pickup->watermod;
+    player->alcohol += pickup->alcoholmod;
+    player->insulin += pickup->insulinmod;
+}
 
+void PLR_MoveEntity(MovingEntity* entity, Level* lvl, time_t frames, int entityplayer) {
+    entity->tilex = entity->x / lvl->cellwidth;
+    entity->tiley = entity->y / lvl->cellheight;
+    Cell cur = LVL_GetCell(lvl, entity->tilex, entity->tiley);
+    int px = cur.x * lvl->cellwidth + lvl->cellwidth / 2;
+    int py = cur.y * lvl->cellheight + lvl->cellheight / 2;
+    int ishorizontal = entity->facing == DIR_LEFT || entity->facing == DIR_RIGHT;
+    
+    float movementleft = frames * entity->speed;
+    while (movementleft > 0) {
+        float move = 0;
+        if (ishorizontal) {
+            movementleft = frames * entity->speed * lvl->cellwidth;
+            if (!DIR_ContainsDirection(cur.mask, entity->facing) && abs((int)(py - entity->y)) < ACCEPTABLE_ERROR) {
+                move = px + lvl->cellwidth - entity->x;
+            }
+            else break;
+        }
+        else {
+            movementleft = frames * entity->speed * lvl->cellwidth;
+            if (!DIR_ContainsDirection(cur.mask, entity->facing) && abs((int)(px - entity->x)) < ACCEPTABLE_ERROR) {
+                move = py + lvl->cellwidth - entity->y;
+            }
+            else break;
+        }
+        move = move > movementleft ? movementleft : move;
+        movementleft -= move;
+        int ix = entity->x, iy = entity->y;
+        DIR_MoveCoord(&ix, &iy, entity->facing, move);
+        entity->x = ix;
+        entity->y = iy;
+        entity->tilex = entity->x / lvl->cellwidth;
+        entity->tiley = entity->y / lvl->cellheight;
+        
+        cur = LVL_GetCell(lvl, entity->tilex, entity->tiley);
+        if (cur.item && entityplayer) {
+            PLR_ConsumePickup((Player*)entity, cur.item);
+        }
+        
+        px = cur.x * lvl->cellwidth + lvl->cellwidth / 2;
+        py = cur.y * lvl->cellheight + lvl->cellheight / 2;
+    }
+}
 
 
 

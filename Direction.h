@@ -72,6 +72,9 @@ void DIR_AddDirection(DirectionMask* mask, Direction dir);
  
  Direction dir:
  The direction to move in
+ 
+ int distance:
+ The amount to move
 
  Return value: None
  
@@ -79,7 +82,7 @@ void DIR_AddDirection(DirectionMask* mask, Direction dir);
  Upwards is considered the negative y direction, and left is considered to be the negative x direction
 
 */
-void DIR_MoveCoord(int* x, int* y, Direction dir);
+void DIR_MoveCoord(int* x, int* y, Direction dir, int distance);
 
 /* 
  DIR_GetOpposite: Direction.c

@@ -7,6 +7,7 @@
 #include "stdlib.h"
 #include "Level.h"
 #include "Pickup.h"
+#include "Player.h"
 
 #define MAPW 800
 #define MAPH 800
@@ -27,14 +28,12 @@ int main(int argc, char** argv){
     SDL_Window* window = NULL;
     SDL_Renderer* rend = NULL;
     SDL_CreateWindowAndRenderer(SCREENW, SCREENH, SDL_WINDOW_SHOWN, &window, &rend);
+    SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
     
     int numinit = PCK_InitializeFromFile("PickUps_Config.txt", rend);
     if (numinit <= 0) {
         printf("Failed to initialize Pickups!\n");
     }
-    
-    SDL_Event wait;
-    SDL_WaitEvent(&wait);
     
     SDL_Surface* GRASS = SDL_LoadBMP("GRASS.bmp");
     if(!GRASS)
@@ -42,97 +41,22 @@ int main(int argc, char** argv){
         printf("ERROR-> GRASS NOT LOADED");
         return 1;
     }
-    SDL_Surface* Death_F = SDL_LoadBMP("Death_F.bmp");
-    if(!Death_F)
-    {
-        printf("ERROR-> Death_F NOT LOADED");
-        return 1;
-    }
-    SDL_Surface* Death_B = SDL_LoadBMP("Death_B.bmp");
-    if(!Death_B)
-    {
-        printf("ERROR-> Death_B NOT LOADED");
-        return 1;
-    }
-    SDL_Surface* Death_R = SDL_LoadBMP("Death_R.bmp");
-    if(!Death_R)
-    {
-        printf("ERROR-> Death_R NOT LOADED");
-        return 1;
-    }
-    SDL_Surface* Man_F = SDL_LoadBMP("Man_F.bmp");
-    if(!Man_F)
-    {
-        printf("ERROR-> Man_F NOT LOADED");
-        return 1;
-    }
-    SDL_Surface* Man_B = SDL_LoadBMP("Man_B.bmp");
-    if(!Man_B)
-    {
-        printf("ERROR-> Man_B NOT LOADED");
-        return 1;
-    }
-    SDL_Surface* Man_R = SDL_LoadBMP("Man_R.bmp");
-    if(!Man_R)
-    {
-        printf("ERROR-> Man_R NOT LOADED");
-        return 1;
-    }
-    SDL_Surface* Woman_F = SDL_LoadBMP("Woman_F.bmp");
-    if(!Woman_F)
-    {
-        printf("ERROR-> Woman_F NOT LOADED");
-        return 1;
-    }
-    SDL_Surface* Woman_B = SDL_LoadBMP("Woman_B.bmp");
-    if(!Woman_B)
-    {
-        printf("ERROR-> Woman_B NOT LOADED");
-        return 1;
-    }
-    SDL_Surface* Woman_R = SDL_LoadBMP("Woman_R.bmp");
-    if(!Woman_R)
-    {
-        printf("ERROR-> Woman_R NOT LOADED");
-        return 1;
-    }
-
-
     SDL_Texture* GrassTex = SDL_CreateTextureFromSurface(rend, GRASS);
-    SDL_Texture* Death_Ftex = SDL_CreateTextureFromSurface(rend, Death_F);
-    SDL_Texture* Death_Btex = SDL_CreateTextureFromSurface(rend, Death_B);
-    SDL_Texture* Death_Rtex = SDL_CreateTextureFromSurface(rend, Death_R);
-    SDL_Texture* Man_Ftex = SDL_CreateTextureFromSurface(rend, Man_F);
-    SDL_Texture* Man_Btex = SDL_CreateTextureFromSurface(rend, Man_B);
-    SDL_Texture* Man_Rtex = SDL_CreateTextureFromSurface(rend, Man_R);
-    SDL_Texture* Woman_Ftex = SDL_CreateTextureFromSurface(rend, Woman_F);
-    SDL_Texture* Woman_Btex = SDL_CreateTextureFromSurface(rend, Woman_B);
-    SDL_Texture* Woman_Rtex = SDL_CreateTextureFromSurface(rend, Woman_R);
-
-
     SDL_FreeSurface(GRASS);
-    SDL_FreeSurface(Death_F);
-    SDL_FreeSurface(Death_B);
-    SDL_FreeSurface(Death_R);
-    SDL_FreeSurface(Man_F);
-    SDL_FreeSurface(Man_B);
-    SDL_FreeSurface(Man_R);
-    SDL_FreeSurface(Woman_F);
-    SDL_FreeSurface(Woman_B);
-    SDL_FreeSurface(Woman_R);
-
+    
     SDL_SetRenderDrawColor(rend, 255, 255, 255, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(rend);
 
     seedxorshift(time(0), SDL_GetTicks());
 
-    SDL_WaitEvent(&wait);
-    Level* lvl = LVL_Generate(0);
+    Level* lvl = LVL_Generate(0, MAPW, MAPH);
     if (!lvl) {
         return 1;
     }
-    SDL_WaitEvent(&wait);
 
+    Player* player = PLR_Initialize(rend, lvl, GEN_MALE, 150, 74, "JESSE");
+    
+    
     Wall prev;
     int initialized = 0;
 
@@ -153,6 +77,8 @@ int main(int argc, char** argv){
 
         SDL_WaitEvent(&event);
         if (event.type == SDL_MOUSEBUTTONDOWN) {
+            player->entity.facing = DIR_GetClockwise(player->entity.facing);
+            
             int mousex = event.button.x;
             int mousey = event.button.y;
 
@@ -246,6 +172,9 @@ int main(int argc, char** argv){
                 green.h = 0;
             }
         }
+        else if (event.type == SDL_KEYDOWN) {
+            PLR_UpdateAll(player, lvl, 1);
+        }
 
         SDL_SetRenderDrawColor(rend, 255, 255, 255, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(rend);
@@ -280,7 +209,7 @@ int main(int argc, char** argv){
             SDL_RenderCopy(rend, lvl->pickups[i].tex, NULL, &pickrect);
         }
 
-        SDL_SetRenderDrawColor(rend, 0, 0, 255, SDL_ALPHA_OPAQUE);
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
         int xpos, ypos;
         for (xpos = 0; xpos < lvl->width; xpos++) {
             for (ypos = 0; ypos < lvl->height; ypos++) {
@@ -323,23 +252,23 @@ int main(int argc, char** argv){
 
         SDL_SetRenderDrawColor(rend, 0, 255, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(rend, &green);
+        
+        SDL_Rect prect;
+        prect.x = player->entity.x - player->entity.width / 2;
+        prect.y = player->entity.y - player->entity.height / 2;
+        prect.w = player->entity.width;
+        prect.h = player->entity.height;
+        SDL_RenderCopy(rend, player->entity.tex[player->entity.facing], NULL, &prect);
 
         SDL_RenderPresent(rend);
 
     } while (event.type != SDL_QUIT);
     
     SDL_DestroyTexture(GrassTex);
-    SDL_DestroyTexture(Death_Ftex);
-    SDL_DestroyTexture(Death_Btex);
-    SDL_DestroyTexture(Death_Rtex);
-    SDL_DestroyTexture(Man_Ftex);
-    SDL_DestroyTexture(Man_Btex);
-    SDL_DestroyTexture(Man_Rtex);
-    SDL_DestroyTexture(Woman_Ftex);
-    SDL_DestroyTexture(Woman_Btex);
-    SDL_DestroyTexture(Woman_Rtex);
 
     LVL_DestroyLevel(lvl);
+    
+    PLR_DestroyPlayer(player);
 
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(rend);

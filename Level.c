@@ -11,7 +11,7 @@ static int LVL_isConnected(Wall one, Wall two) {
     int cw_check = 2;
     
     if (one.dir == DIR_LEFT || one.dir == DIR_UP) {
-        DIR_MoveCoord(&one.x, &one.y, one.dir);
+        DIR_MoveCoord(&one.x, &one.y, one.dir, 1);
         one.dir = DIR_GetOpposite(one.dir);
         
         int tmp = cw_check;
@@ -20,14 +20,14 @@ static int LVL_isConnected(Wall one, Wall two) {
     }
     
     if (two.dir == DIR_LEFT || two.dir == DIR_UP) {
-        DIR_MoveCoord(&two.x, &two.y, two.dir);
+        DIR_MoveCoord(&two.x, &two.y, two.dir, 1);
         two.dir = DIR_GetOpposite(two.dir);
     }
     
     if (one.dir == two.dir) {
         Direction ccw = DIR_GetCounterClockwise(one.dir);
         int x = one.x, y = one.y;
-        DIR_MoveCoord(&x, &y, ccw);
+        DIR_MoveCoord(&x, &y, ccw, 1);
         if (x == two.x && y == two.y) {
             return ccw_check;
         }
@@ -36,7 +36,7 @@ static int LVL_isConnected(Wall one, Wall two) {
         Direction cw = DIR_GetClockwise(one.dir);
         x = one.x;
         y = one.y;
-        DIR_MoveCoord(&x, &y, cw);
+        DIR_MoveCoord(&x, &y, cw, 1);
         if (x == two.x && y == two.y) {
             return cw_check;
         }
@@ -46,11 +46,11 @@ static int LVL_isConnected(Wall one, Wall two) {
         if (one.dir == DIR_DOWN) {
             Direction cw = DIR_GetClockwise(one.dir);
             int x = one.x, y = one.y;
-            DIR_MoveCoord(&x, &y, cw);
+            DIR_MoveCoord(&x, &y, cw, 1);
             if (x == two.x && y == two.y) {
                 return cw_check;
             }
-            DIR_MoveCoord(&x, &y, one.dir);
+            DIR_MoveCoord(&x, &y, one.dir, 1);
             if (x == two.x && y == two.y) {
                 return cw_check;
             }
@@ -61,7 +61,7 @@ static int LVL_isConnected(Wall one, Wall two) {
             }
             x = one.x;
             y = one.y;
-            DIR_MoveCoord(&x, &y, one.dir);
+            DIR_MoveCoord(&x, &y, one.dir, 1);
             if (x == two.x && y == one.y) {
                 return ccw_check;
             }
@@ -69,11 +69,11 @@ static int LVL_isConnected(Wall one, Wall two) {
         else {
             Direction ccw = DIR_GetCounterClockwise(one.dir);
             int x = one.x, y = one.y;
-            DIR_MoveCoord(&x, &y, ccw);
+            DIR_MoveCoord(&x, &y, ccw, 1);
             if (x == two.x && y == two.y) {
                 return ccw_check;
             }
-            DIR_MoveCoord(&x, &y, one.dir);
+            DIR_MoveCoord(&x, &y, one.dir, 1);
             if (x == two.x && y == two.y) {
                 return ccw_check;
             }
@@ -84,7 +84,7 @@ static int LVL_isConnected(Wall one, Wall two) {
             }
             x = one.x;
             y = one.y;
-            DIR_MoveCoord(&x, &y, one.dir);
+            DIR_MoveCoord(&x, &y, one.dir, 1);
             if (x == two.x && y == one.y) {
                 return cw_check;
             }
@@ -107,7 +107,7 @@ int LVL_AddWall(Level* lvl, Wall wall, Wall* from) {
     }
     
     int acrossx = wall.x, acrossy = wall.y;
-    DIR_MoveCoord(&acrossx, &acrossy, wall.dir);
+    DIR_MoveCoord(&acrossx, &acrossy, wall.dir, 1);
     Cell across = LVL_GetCell(lvl, acrossx, acrossy);
     
     if (DIR_ContainsDirection(across.mask, DIR_GetOpposite(wall.dir))) {
@@ -132,8 +132,8 @@ int LVL_AddWall(Level* lvl, Wall wall, Wall* from) {
                 return 0;
             }
             int x = cell.x, y = cell.y;
-            DIR_MoveCoord(&x, &y, wall.dir);
-            DIR_MoveCoord(&x, &y, cw);
+            DIR_MoveCoord(&x, &y, wall.dir, 1);
+            DIR_MoveCoord(&x, &y, cw, 1);
             Cell cwcell = LVL_GetCell(lvl, x, y);
             if (DIR_ContainsDirection(cwcell.mask, ccw)) {
                 return 0;
@@ -145,8 +145,8 @@ int LVL_AddWall(Level* lvl, Wall wall, Wall* from) {
                 return 0;
             }
             int x = cell.x, y = cell.y;
-            DIR_MoveCoord(&x, &y, wall.dir);
-            DIR_MoveCoord(&x, &y, ccw);
+            DIR_MoveCoord(&x, &y, wall.dir, 1);
+            DIR_MoveCoord(&x, &y, ccw, 1);
             Cell ccwcell = LVL_GetCell(lvl, x, y);
             if (DIR_ContainsDirection(ccwcell.mask, cw)) {
                 return 0;
@@ -160,8 +160,8 @@ int LVL_AddWall(Level* lvl, Wall wall, Wall* from) {
             return 0;
         }
         int x = cell.x, y = cell.y;
-        DIR_MoveCoord(&x, &y, wall.dir);
-        DIR_MoveCoord(&x, &y, cw);
+        DIR_MoveCoord(&x, &y, wall.dir, 1);
+        DIR_MoveCoord(&x, &y, cw, 1);
         Cell cwcell = LVL_GetCell(lvl, x, y);
         if (DIR_ContainsDirection(cwcell.mask, ccw)) {
             return 0;
@@ -172,8 +172,8 @@ int LVL_AddWall(Level* lvl, Wall wall, Wall* from) {
             return 0;
         }
         x = cell.x, y = cell.y;
-        DIR_MoveCoord(&x, &y, wall.dir);
-        DIR_MoveCoord(&x, &y, ccw);
+        DIR_MoveCoord(&x, &y, wall.dir, 1);
+        DIR_MoveCoord(&x, &y, ccw, 1);
         Cell ccwcell = LVL_GetCell(lvl, x, y);
         if (DIR_ContainsDirection(ccwcell.mask, cw)) {
             return 0;
@@ -183,7 +183,7 @@ int LVL_AddWall(Level* lvl, Wall wall, Wall* from) {
     // Set the wall
     Cell* cptr = LVL_GetCellPtr(lvl, wall.x, wall.y);
     DIR_AddDirection(&cptr->mask, wall.dir);
-    DIR_MoveCoord(&wall.x, &wall.y, wall.dir);
+    DIR_MoveCoord(&wall.x, &wall.y, wall.dir, 1);
     cptr = LVL_GetCellPtr(lvl, wall.x, wall.y);
     DIR_AddDirection(&cptr->mask, DIR_GetOpposite(wall.dir));
     return 1;
@@ -280,7 +280,7 @@ static void LVL_CreateQuadrantLayerPaths(Level* lvl, int layer) {
     }
 }
 
-Level* LVL_Generate(int day) {
+Level* LVL_Generate(int day, int totalwidth, int totalheight) {
 
     Level* lvl = malloc(sizeof(Level));
     if (!lvl) return NULL;
@@ -288,6 +288,10 @@ Level* LVL_Generate(int day) {
     
     lvl->width = LVL_WIDTH;
     lvl->height = LVL_HEIGHT;
+    lvl->totwidth = totalwidth;
+    lvl->totheight = totalheight;
+    lvl->cellwidth = totalwidth / lvl->width;
+    lvl->cellheight = totalheight / lvl->height;
     lvl->num = lvl->width * lvl->height;
     lvl->grid = malloc(sizeof(Cell) * lvl->num);
     if (!lvl->grid) return NULL;
@@ -402,11 +406,22 @@ Level* LVL_Generate(int day) {
         pos[count / 4][0] = xpos;
         pos[count / 4][1] = ypos;
         
+        Cell* cptr = NULL;
         lvl->pickups[count] = PCK_GetWeightedPickup(xpos, ypos, 1);
-        lvl->pickups[count + 1] = PCK_GetWeightedPickup(lvl->width - xpos - 1, ypos, 1);
-        lvl->pickups[count + 2] = PCK_GetWeightedPickup(xpos, lvl->height - ypos - 1, 1);
-        lvl->pickups[count + 3] = PCK_GetWeightedPickup(lvl->width - xpos - 1, lvl->height - ypos - 1, 1);
+        cptr = LVL_GetCellPtr(lvl, xpos, ypos);
+        cptr->item = &lvl->pickups[count];
         
+        lvl->pickups[count + 1] = PCK_GetWeightedPickup(lvl->width - xpos - 1, ypos, 1);
+        cptr = LVL_GetCellPtr(lvl, lvl->width - xpos - 1, ypos);
+        cptr->item = &lvl->pickups[count + 1];
+        
+        lvl->pickups[count + 2] = PCK_GetWeightedPickup(xpos, lvl->height - ypos - 1, 1);
+        cptr = LVL_GetCellPtr(lvl, xpos, lvl->height - ypos - 1);
+        cptr->item = &lvl->pickups[count + 2];
+        
+        lvl->pickups[count + 3] = PCK_GetWeightedPickup(lvl->width - xpos - 1, lvl->height - ypos - 1, 1);
+        cptr = LVL_GetCellPtr(lvl, lvl->width - xpos - 1, lvl->height - ypos - 1);
+        cptr->item = &lvl->pickups[count + 3];
     }
     
     return lvl;

@@ -25,9 +25,9 @@ typedef struct sMovingEntity {
     
     SDL_Texture* tex[4];
     
-    int speed;
+    float speed;
     
-    double x, y;
+    float x, y;
     int width, height;
     
     int tilex, tiley;
@@ -37,11 +37,16 @@ typedef struct sMovingEntity {
 
 #define TIME_FACTOR 150
 #define SECONDS_TO_MINUTES ((TIME_FACTOR / 60.0))
-#define PLAYER_SPEED 0.5
-#define SPRINT_SPEED 1.0
+#define PLAYER_SPEED 0.1
+#define DEATH_SPEED 0.2
+#define SPRINT_SPEED 0.4
 
 typedef struct sPlayer {
     MovingEntity entity;
+    float defaultx;
+    float defaulty;
+    float deftilex;
+    float deftiley;
     
     /* Given by the user at runtime */
     Gender gender;
@@ -91,11 +96,13 @@ typedef struct sPlayer {
     
 } Player;
 
-Player* PLR_Initialize(Level* lvl, Gender gender, int weight, int height, const char* name);
+Player* PLR_Initialize(SDL_Renderer* rend, Level* lvl, Gender gender, int weight, int height, const char* name);
+void PLR_DestroyPlayer(Player* player);
 void PLR_StartNewDay(Player* player);
 void PLR_UpdateAll(Player* player, Level* lvl, time_t frames);
 void PLR_UpdateHealth(Player* player, time_t frames);
-void PLR_MoveEntity(MovingEntity* entity, Level* lvl, time_t frames);
+void PLR_ConsumePickup(Player* player, Pickup* pickup);
+void PLR_MoveEntity(MovingEntity* entity, Level* lvl, time_t frames, int entityplayer);
 
 
 #endif /* Player_h */

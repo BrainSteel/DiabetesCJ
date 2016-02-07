@@ -29,22 +29,22 @@ void DIR_AddDirection(DirectionMask* mask, Direction dir) {
     *mask |= (1 << (int)dir);
 }
 
-void DIR_MoveCoord(int* x, int* y, Direction dir) {
+void DIR_MoveCoord(int* x, int* y, Direction dir, int distance) {
     switch (dir) {
         case DIR_LEFT:
-            (*x)--;
+            (*x) -= distance;
             break;
             
         case DIR_RIGHT:
-            (*x)++;
+            (*x) += distance;
             break;
             
         case DIR_UP:
-            (*y)--;
+            (*y) -= distance;
             break;
             
         case DIR_DOWN:
-            (*y)++;
+            (*y) += distance;
             break;
     }
 }

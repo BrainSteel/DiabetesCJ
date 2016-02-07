@@ -22,7 +22,8 @@ typedef struct sCell {
 } Cell;
 
 typedef struct sLevel {
-    
+    int totwidth, totheight;
+    int cellwidth, cellheight;
     int width, height;
     int num;
     Cell* grid;
@@ -35,7 +36,7 @@ typedef struct sLevel {
 } Level;
 
 int LVL_AddWall(Level* lvl, Wall wall, Wall* from);
-Level* LVL_Generate(int day);
+Level* LVL_Generate(int day, int totalwidth, int totalheight);
 int LVL_GetNumWalls(Cell cell);
 Cell LVL_GetCell(Level* lvl, int x, int y);
 Cell* LVL_GetCellPtr(Level* lvl, int x, int y);
