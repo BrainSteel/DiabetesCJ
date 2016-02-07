@@ -82,6 +82,8 @@ typedef struct sPlayer {
     time_t secondsreal;
     time_t minutessim;
     
+    int sprinting;
+    
     int deathdistance;
     MovingEntity death;
     
