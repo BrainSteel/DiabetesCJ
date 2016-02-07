@@ -1,0 +1,343 @@
+
+charecter Life Cycle:
+Charecter inti
+	Name, age, height, weight, gender, daily calorie, (Type)
+
+
+'________________________________________________________
+relationships:
+
+controle variable:
+	from init:
+		age weight gender
+	From game play
+		Diet (Carbs) females 45-60g male 60-75g snack <20g	
+		Med (units)
+		glucose   hypo=<70mg/dl pre-meal 80-130 mg/dl post 1-2hr <180mg/dl	
+		
+		exercize (min) 
+		Time (min/sec)
+		illness
+		stress
+		sleep
+		hidration
+		alcohol
+		
+
+
+relationships:
+
+Daily calorie * .65 * .25 = carbs dialy (g)
+
+CHO coverage:
+	1/15 unit/g standard
+	1/(5-10) unit/g ovrweight
+	1/20 unit/g (lean-young)
+
+insulin sensitivity factor (ISF):
+	1/30 unit/(mg/dl) standard
+	1/5 unit/(mg/dl) overweight
+	1/50 unit/(mg/dl) lean-young
+
+insulin correction factor
+	(glucose-130)/ISF= med dose (units)
+
+basic CHO glucose insulin:
+	standard:
+	overweight:
+	lean-young:
+
+exercise: 
+	150min/week=20min/day
+	if glucose >250mg/dl check for ketones and wait until glucose goes normal and ketones go <0
+	If type 1 and glucose >300mg/dl could be a problem even with ketones <0
+	If type 1 and pre-workout glucose 250->300mg/dl and ketones <0 = ok to work out, but will lower glucose
+
+	eat snack 15min prior not juice
+		Add 15g carb/(30-60)min =360g carb/day
+	or 
+		<30min-->not needed
+		30->60min-->15g/hr
+		>60min 30->50g/hr
+
+	and
+		no added <30min
+		if pre-workout glucose <100mg/dl add carb
+		if no insulin then no supplementary carbohydrates
+		if >45min then 1-2units
+
+hydration:
+		64oz/day
+		dehydration concentrates blood glucose
+		
+		
+
+stress makes hormorns that are anti insulin
+	stress=S*-1*Insulin/(time-step)
+
+illness is a stress multifire
+ 	stress=illness+(stress+1)
+	can heal with: 
+		drink 8oz/hr=192oz/day h2o
+		eat   (10-15)/(1-2) CHO/hr =5CHO/hr = 120 CHO/day divided
+
+Alcohol 	stress releaver
+		safe zone: glucose 100->140 mg/dl when sleep
+			men 2 drinks/day wemon 1 drink/day
+			1dring = 12OZ beer 5 oz win 1.5 oz whiskey
+		If not safe by sleep-->wake up with illness and missing a heart.
+
+sleep
+if not sleep -->stress <6hrs
+
+
+
+'________________________________________________________
+Laws based on relationships
+
+'/Start value for glucose
+lGlucosStart=130mg/dl
+lglucose = lGlucosStart
+
+lBody
+if()
+standard
+else if()
+obesa
+else if()
+lean
+
+'type dependent variables
+'/for standard
+lICF=15
+lISF=30
+
+'/for obesa
+lICF=5
+lISF=5
+
+'/for lean
+lICF=20
+lISF=50
+
+'________________________________________________________
+
+'/how glucos level changes when insulin is taken
+lGlucos = 130 - ( linsulin * ISF ) * lsensitivity 
+
+'________________________________________________________
+
+'/how much insulin is needed for CHO (carb)
+
+
+'/I don't thing we use this
+
+
+linsulin = lCHO/lICF
+
+
+
+'________________________________________________________
+'/ how much glucos is added to system for every CHO
+'this is type dependent
+'standard
+lGlucos=lGlucos+.5*lCHO
+
+'obesity
+lGlucos=lGlucos+l*lCHO
+
+'lean or child
+lGlucos=lGlucos+.4*lCHO
+
+
+'________________________________________________________
+
+'/hidration will be it's own tracable value
+lh2o=72
+lh2o=lh20-.05*lmin
+
+
+'________________________________________________________
+
+'/stress will be applied as an anti-insulin unit for some rate of time 1 for every half hour
+
+
+while(t>0)
+(
+'/do this every hour
+	if( t=int (1-->24))	
+
+	lCHO = lCHO + lStress
+
+			'standard
+			lGlucos=lGlucos+.5 * lCHO
+
+			'obesity
+			lGlucos=lGlucos+l*CHO
+
+			'lean or child
+			lGlucos=lGlucos+.4*lCHO
+
+	
+		
+)
+
+
+
+
+'________________________________________________________
+'/illness is a stress multifire applied constently through out the day
+'/illness can be healed if sertain condition are met.
+ 
+'/illness adds to stress
+lstress=lillness+(lstress)
+	
+'/can heal at the end of the day with: 
+if (t=0)
+	(if(lH2ODay>191 and lCHOday>120)
+	(	illness = 0
+		else if (lH2ODay>72 and lCHOday>120)
+		illness = .5* illness
+	))
+
+
+		
+
+'________________________________________________________
+Alcohol 	Stress releaver, but if you have too much it will kill you
+		
+
+'/end of the day 
+
+if( lAlcohol > 0 and t>0)
+	(lStress = lStress -.5 * lAlcohol)
+
+
+if(t=0)
+	(if(lGlucose < 100 or lGlucose > 140)
+		(lillness = lillness +1)
+	
+	if(man)
+		(if( lAlcohol > 24)
+			(lillness = lillness +1))
+
+	if(lady)
+		(if( lAlcohol > 12)
+			(lillness = lillness +1)))
+
+
+'________________________________________________________
+'/exercise	is really good for you, but you still need to be careful
+	
+
+'/if you got your 20 miin in a day
+
+'/ should connect with hydration
+
+if(t=0)
+ 	(lexerciseDaily = lblocksran
+		if(lexerciseDaily > 19)
+			(lillness = lillness - 1
+			lStress = lStress - 1	))
+
+'/ you use water when you exe
+lh2o = lh20 - .05 * lexerciseDaily
+
+
+'/dialy activity insulin sensitive will go up		
+
+lsensitivity = 1
+
+lsensitivity = lsensitivity + .1 * lexerciseDaily
+
+
+
+while(sprinting)	
+'/assume it take 60min to move 6 block
+	
+	(
+	if( lInARow>3 and lInARow<6)
+	(lCHO = lCHO - 15 
+
+		'/ recalculate glucose
+		standard
+		lGlucos=lGlucos+.5 * lCHO
+
+		'obesity
+		lGlucos=lGlucos+l*CHO
+
+		'lean or child
+		lGlucos=lGlucos+.4*lCHO
+
+	)
+	if( lInARow>6)
+	(lCHO = lCHO - 50 * lInARow / 6
+
+		'/ recalculate glucose
+		standard
+		lGlucos=lGlucos+.5 * lCHO
+
+		'obesity
+		lGlucos=lGlucos+l*CHO
+
+		'lean or child
+		lGlucos=lGlucos+.4*lCHO
+
+	 
+	))
+
+
+
+'________________________________________________________
+Sleep		they say it's good for you.
+
+
+'/if not sleep -->stress <6hrs
+
+
+'/when we go to bed how much sleep will we get
+
+lSleep = 8
+
+	if(t=0)
+	(if(lGlucose < 80 or lGlucose > 160)
+		lSleep = lSleep - 1
+	else if(lGlucose < 60 or lGlucose > 190)
+		lSleep = lSleep - 2
+	else if(lGlucose < 50 or lGlucose > 210)
+		lSleep = lSleep - 3
+	else if(lGlucose < 45 or lGlucose > 220)
+		lSleep = lSleep - 4
+	else if(lGlucose < 40 or lGlucose > 240)
+		lSleep = lSleep - 5
+	)
+
+
+'/what happens if you don't get enouph sleep
+'/ you are fine unless you get less than 6 and you will get stress for less
+
+
+lSleepless = 0
+
+	if(lSleep<6)
+		(	lSleepless = 6 - lSleep
+			lStress + lStress + lSleepless )
+
+
+'________________________________________________________
+Vitality
+
+'/if you are unhealthy you loose vitality if heathy you get better... like one punch man
+
+
+'/ start with 100 vitality
+lVital = 100
+
+'/ define heathy reagins 
+'/ 100<Glucose<140
+'/ lh2o > 20
+
+if(lGlucose < 100 or lGlucose > 140 or lH2o < 20)
+	( lVital = lVital -1
+	else lVital = lVital +1
+	)

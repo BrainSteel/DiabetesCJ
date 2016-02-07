@@ -1,0 +1,37 @@
+
+ALL STRINGS MUST BE ENCLOSED IN QUOTES
+RARITY IS AN INTEGER, THE REST MAY BE FLOATS
+USE THIS FORMAT FOR CONFIG FILE:
+
+
+this is a full list of pickups and what should happen to the charecter's state when they are picked up.
+of the form:
+PickupNamethinghere : CHO, calories, water, alcohol, insulin, Frequincy, file.bmp
+
+
+"insulinOne" : 0, 0, 0, 0, 1 , 2, "insulinOne.bmp"
+
+"insulinTwo" : 0, 0, 0, 0, 2 , 1, "insulinTwo.bmp"
+
+"FoodSliceBread" : 15, 79, 0, 0, 0, 1, "FoodSliceBread.bmp"
+
+"FoodBuns" : 30, 110, 0, 0, 0, 1, "FoodBuns.bmp"
+
+"FoodSoftPretzile" : 60, 108, 0, 0, 0, 1, "FoodSoftPretzile.bmp"
+
+"FoodMilk" : 15, 103, 5, 0, 0, 1, "FoodMilk.bmp"
+
+"FoodSmallBanana" : 15, 72, 0, 0, 0, 1, "FoodSmallBanana.bmp"
+
+"FoodOrange" : 15, 45, 2, 0, 0, 1, "FoodOrange.bmp"
+
+"FoodCupStrawberries" : 12, 47, 1, 0, 0, 1, "FoodCupStrawberries.bmp"
+
+"FoodDoughnut" : 30, 195,  0, 0, 0, 1, "FoodDoughnut.bmp"
+
+"FoodBroccoli" : 5, 31, 0, 0, 0, 1, "FoodBroccoli.bmp"
+
+"FoodCucumber" : 5, 8, 1, 0, 0, 1, "FoodCucumber.bmp"
+"FoodTomato" : 5, 22, 2, 0, 0, 1, "FoodTomato.bmp"
+"Water" : 0, 0, 1, 0, 0, 10, "Water.bmp"
+"Beer" : 0, 13, 1, 2, 0, 1, "Beer.bmp"
