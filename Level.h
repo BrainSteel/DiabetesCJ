@@ -41,5 +41,6 @@ Cell LVL_GetCell(Level* lvl, int x, int y);
 Cell* LVL_GetCellPtr(Level* lvl, int x, int y);
 void LVL_SetCellMask(Level* lvl, int x, int y, DirectionMask mask);
 void LVL_AddToCellMask(Level* lvl, int x, int y, Direction dir);
+void LVL_DestroyLevel(Level* lvl);
 
 #endif /* Level_h */

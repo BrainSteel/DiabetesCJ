@@ -316,8 +316,7 @@ int main(int argc, char** argv){
     SDL_DestroyTexture(Woman_Btex);
     SDL_DestroyTexture(Woman_Rtex);
 
-    free(lvl->grid);
-    free(lvl);
+    LVL_DestroyLevel(lvl);
 
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(rend);

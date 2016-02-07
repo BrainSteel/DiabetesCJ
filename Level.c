@@ -408,6 +408,11 @@ Level* LVL_Generate(int day) {
         lvl->pickups[count * 4 + 1] = PCK_GetWeightedPickup(lvl->width - xpos, ypos, 1);
         lvl->pickups[count * 4 + 2] = PCK_GetWeightedPickup(xpos, lvl->height - ypos, 1);
         lvl->pickups[count * 4 + 3] = PCK_GetWeightedPickup(lvl->width - xpos, lvl->height - ypos, 1);
+        
+        if (lvl->pickups[count * 4].x == 0) {
+            LVL_DestroyLevel(lvl);
+            return NULL;
+        }
     }
     
     return lvl;
@@ -475,4 +480,16 @@ void LVL_AddToCellMask(Level* lvl, int x, int y, Direction dir) {
     }
     
     DIR_AddDirection(&lvl->grid[y * lvl->width + x].mask, dir);
+}
+
+void LVL_DestroyLevel(Level* lvl) {
+    if (lvl->grid) {
+        free(lvl->grid);
+    }
+    
+    if (lvl->pickups) {
+        free(lvl->pickups);
+    }
+    
+    free(lvl);
 }
