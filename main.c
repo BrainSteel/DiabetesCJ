@@ -1,6 +1,7 @@
 //#define NOLOGCHANGE
 //#define NOINITCHANGE
 #include "ExtraLayerSDL.h"
+#include "Sound.h"
 #include "time.h"
 #include "xorshift.h"
 #include "stdlib.h"
@@ -16,6 +17,9 @@ int main(int argc, char** argv){
         printf("SDL Failed Initialization!");
         return 1;
     }
+    
+    AUD_Sound* music = AUD_LoadWAV("Level Up.wav", 1);
+    AUD_Play(music);
 
     SDL_Window* window = NULL;
     SDL_Renderer* rend = NULL;
