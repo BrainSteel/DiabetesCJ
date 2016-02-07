@@ -238,6 +238,10 @@ void PLR_StartNewDay(Player* player) {
 }
 
 void PLR_UpdateAll(Player* player, Level* lvl, time_t frames) {
+    if (player->sprinting) {
+        player->entity.speed = SPRINT_SPEED;
+    }
+    else player->entity.speed = PLAYER_SPEED;
     PLR_UpdateHealth(player, frames);
     PLR_MoveEntity((MovingEntity*)player, lvl, frames, 1);
 }

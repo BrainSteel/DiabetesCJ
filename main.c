@@ -295,12 +295,16 @@ int main(int argc, char** argv){
                     LVL_DestroyLevel(lvl);
                     lvl = LVL_Generate(0, MAPW, MAPH);
                     PLR_DestroyPlayer(player);
-                    player = PLR_Initialize(rend, lvl, GEN_MALE, 150, 74, "JESSE");
+                    player = PLR_Initialize(rend, lvl, gender, atoi(cweight), atoi(cheight), name);
                 }
 
             }
             else if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
+                    case SDLK_LSHIFT:
+                        player->sprinting = !player->sprinting;
+                        break;
+                        
                     case SDLK_w:
                         if (player->entity.facing != DIR_DOWN) {
                             player->entity.facing = DIR_UP;
@@ -335,6 +339,35 @@ int main(int argc, char** argv){
         }
         
         PLR_UpdateAll(player, lvl, 1);
+        if (player->lasthour == 24) {
+            SDL_SetRenderDrawColor(rend, 0, 255, 0, 127);
+            SDL_Event win;
+            do {
+                SDL_WaitEvent(&win);
+                SDL_RenderClear(rend);
+                FNT_DrawText(rend, font, "YOU SURVIVED THE DAY", 0, -32, 25, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+                FNT_DrawText(rend, font, "PRESS ENTER KEY TO CONTINUE", 0, 0, 25, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+                SDL_RenderPresent(rend);
+            } while (!(win.type == SDL_KEYDOWN && win.key.keysym.sym == SDLK_RETURN));
+            LVL_DestroyLevel(lvl);
+            lvl = LVL_Generate(player->day + 1, MAPW, MAPH);
+            PLR_StartNewDay(player);
+        }
+        if (player->vitality == 0) {
+            SDL_SetRenderDrawColor(rend, 255, 0, 0, 127);
+            SDL_Event win;
+            do {
+                SDL_WaitEvent(&win);
+                SDL_RenderClear(rend);
+                FNT_DrawText(rend, font, "YOU SUCCUMBED TO DEATH", 0, -32, 25, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+                FNT_DrawText(rend, font, "PRESS ENTER KEY TO CONTINUE", 0, 0, 25, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+                SDL_RenderPresent(rend);
+            } while (!(win.type == SDL_KEYDOWN && win.key.keysym.sym == SDLK_RETURN));
+            LVL_DestroyLevel(lvl);
+            lvl = LVL_Generate(0, MAPW, MAPH);
+            PLR_DestroyPlayer(player);
+            player = PLR_Initialize(rend, lvl, gender, atoi(cweight), atoi(cheight), name);
+        }
         
         SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(rend);
@@ -431,7 +464,10 @@ int main(int argc, char** argv){
         SDL_RenderDrawLine(rend, 799, 0, 1199, 0);
         SDL_RenderFillRect(rend, &HUB_Title);
         FNT_DrawText(rend, font, player->name, 800, 700, 30, 0);
-        FNT_DrawText(rend, font, "PRESS CNTRL TO SPRINT", 800, 5, 20, 0);
+        if (player->sprinting) {
+            FNT_DrawText(rend, font, "PRESS SHIFT TO WALK", 800, 5, 20, 0);
+        }
+        else FNT_DrawText(rend, font, "PRESS SHIFT TO SPRINT", 800, 5, 20, 0);
         FNT_DrawText(rend, font, "ATTRIBUTES", 880, 50, 30, 0);
 
 
@@ -524,7 +560,7 @@ int main(int argc, char** argv){
         SDL_Rect vitrect;
         vitrect.x = 1000;
         vitrect.y = 200;
-        vitrect.w = 100 - 10 * player->vitality;
+        vitrect.w = 125 - 12.5 * player->vitality;
         vitrect.h = steph;
         SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(rend, &vitrect);
@@ -545,8 +581,10 @@ int main(int argc, char** argv){
         FNT_DrawText(rend, font, buf, 800, 275, 20, 0);
         sprintf(buf, "%d POUNDS IN WEIGHT", (int)player->weight);
         FNT_DrawText(rend, font, buf, 800, 300, 20, 0);
-        sprintf(buf, "%d HOURS REMAINING", 24 - player->lasthour);
+        sprintf(buf, "%d HOURS REMAINING ON", 24 - player->lasthour);
         FNT_DrawText(rend, font, buf, 800, 325, 20, 0);
+        sprintf(buf, "DAY %d", player->day);
+        FNT_DrawText(rend, font, buf, 800, 350, 20, 0);
         
         SDL_Rect prect;
         prect.x = player->entity.x - player->entity.width / 2;
