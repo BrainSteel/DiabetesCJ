@@ -35,8 +35,10 @@ typedef struct sMovingEntity {
 } MovingEntity;
 
 
-#define GLUCOSE_START 130
-
+#define TIME_FACTOR 150
+#define SECONDS_TO_MINUTES ((TIME_FACTOR / 60.0))
+#define PLAYER_SPEED 0.5
+#define SPRINT_SPEED 1.0
 
 typedef struct sPlayer {
     MovingEntity entity;
@@ -59,17 +61,14 @@ typedef struct sPlayer {
     float sensitivity;
     
     float CHO;
-    int dailycal;
     
     float hydration;
-    int dailywater;
     
     float stress;
     float illness;
     
     float alcohol;
     
-    float dailyexercise;
     int blocksran;
     int blocksconsecutive;
     
@@ -81,17 +80,22 @@ typedef struct sPlayer {
     time_t frames;
     time_t secondsreal;
     time_t minutessim;
+    int lasthour;
+    int day;
     
     int sprinting;
     
+    int (*movequeue)[2];
     int deathdistance;
     MovingEntity death;
     
 } Player;
 
 Player* PLR_Initialize(Level* lvl, Gender gender, int weight, int height, const char* name);
+void PLR_StartNewDay(Player* player);
+void PLR_UpdateAll(Player* player, Level* lvl, time_t frames);
 void PLR_UpdateHealth(Player* player, time_t frames);
-void PLR_MoveEntity(MovingEntity* entity, time_t frames);
+void PLR_MoveEntity(MovingEntity* entity, Level* lvl, time_t frames);
 
 
 #endif /* Player_h */

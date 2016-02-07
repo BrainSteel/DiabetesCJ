@@ -8,7 +8,7 @@
 
 #define LVL_WIDTH 40
 #define LVL_HEIGHT 40
-#define LVL_PERCENT_PICKUPS 0.05
+#define LVL_PERCENT_PICKUPS 0.08
 
 typedef struct sWall {
     int x, y;

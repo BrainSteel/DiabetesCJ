@@ -18,8 +18,8 @@ int main(int argc, char** argv){
         return 1;
     }
     
-    AUD_Sound* music = AUD_LoadWAV("Level Up.wav", 1);
-    AUD_Play(music);
+    //AUD_Sound* music = AUD_LoadWAV("Level Up.wav", 1);
+    //AUD_Play(music);
 
     SDL_Window* window = NULL;
     SDL_Renderer* rend = NULL;
