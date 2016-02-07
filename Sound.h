@@ -1,10 +1,4 @@
-//
-//  Sound.h
-//  Dodgeball
-//
-//  Created by Jesse Pritchard on 3/22/15.
-//  Copyright (c) 2015 Jesse Pritchard. All rights reserved.
-//
+
 
 #ifndef __Dodgeball__Sound__
 #define __Dodgeball__Sound__

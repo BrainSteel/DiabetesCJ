@@ -8,8 +8,11 @@
 #include "Level.h"
 #include "Pickup.h"
 
-#define SCREENW 800
-#define SCREENH 800
+#define MAPW 800
+#define MAPH 800
+
+#define SCREENW ((MAPW + 400))
+#define SCREENH MAPH
 
 int main(int argc, char** argv){
     //Start SDL
@@ -137,8 +140,8 @@ int main(int argc, char** argv){
 
 #define RECT_WIDTH 2
 
-    double stepw = SCREENW / lvl->width;
-    double steph = SCREENH / lvl->height;
+    double stepw = MAPW / lvl->width;
+    double steph = MAPH / lvl->height;
 
     SDL_Event event;
     SDL_Rect green;

@@ -43,6 +43,7 @@ Player* PLR_Initialize(Level* lvl, Gender gender, int weight, int height, const 
     player->illness = 0;
     player->stress = 0;
     player->sensitivity = 1.0;
+    player->insulin = 1;
     
     player->day = 0;
     
