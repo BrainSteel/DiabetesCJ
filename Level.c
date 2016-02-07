@@ -375,7 +375,7 @@ Level* LVL_Generate(int day) {
     
     int pickupw = lvl->width - 2;
     int pickuph = lvl->height - 2;
-    lvl->numpickup = 4 * (LVL_PERCENT_PICKUPS * pickupw * pickuph / 4);
+    lvl->numpickup = 4 * ((int)(LVL_PERCENT_PICKUPS * pickupw * pickuph) / 4);
     lvl->pickups = malloc(sizeof(Pickup) * lvl->numpickup);
     if (!lvl->pickups) {
         LVL_DestroyLevel(lvl);
