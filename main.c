@@ -26,6 +26,9 @@ int main(int argc, char** argv){
         printf("Failed to initialize Pickups!\n");
     }
     
+    SDL_Event wait;
+    SDL_WaitEvent(&wait);
+    
     SDL_Surface* GRASS = SDL_LoadBMP("GRASS.bmp");
     if(!GRASS)
     {
@@ -104,17 +107,24 @@ int main(int argc, char** argv){
     SDL_FreeSurface(Death_F);
     SDL_FreeSurface(Death_B);
     SDL_FreeSurface(Death_R);
+    SDL_FreeSurface(Man_F);
+    SDL_FreeSurface(Man_B);
+    SDL_FreeSurface(Man_R);
+    SDL_FreeSurface(Woman_F);
+    SDL_FreeSurface(Woman_B);
+    SDL_FreeSurface(Woman_R);
 
     SDL_SetRenderDrawColor(rend, 255, 255, 255, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(rend);
 
     seedxorshift(time(0), SDL_GetTicks());
 
-
+    SDL_WaitEvent(&wait);
     Level* lvl = LVL_Generate(0);
     if (!lvl) {
         return 1;
     }
+    SDL_WaitEvent(&wait);
 
     Wall prev;
     int initialized = 0;

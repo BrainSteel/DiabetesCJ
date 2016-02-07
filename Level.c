@@ -375,12 +375,10 @@ Level* LVL_Generate(int day) {
     
     int pickupw = lvl->width - 2;
     int pickuph = lvl->height - 2;
-    lvl->numpickup = LVL_PERCENT_PICKUPS * pickupw * pickuph / 4;
-    lvl->pickups = malloc(sizeof(Pickup) * lvl->numpickup);
+    lvl->numpickup = (LVL_PERCENT_PICKUPS * pickupw * pickuph / 4);
+    lvl->pickups = malloc(4 * sizeof(Pickup) * lvl->numpickup);
     if (!lvl->pickups) {
-        lvl->numpickup = 0;
-        free(lvl->grid);
-        free(lvl);
+        LVL_DestroyLevel(lvl);
         return NULL;
     }
     
@@ -409,7 +407,7 @@ Level* LVL_Generate(int day) {
         lvl->pickups[count * 4 + 2] = PCK_GetWeightedPickup(xpos, lvl->height - ypos, 1);
         lvl->pickups[count * 4 + 3] = PCK_GetWeightedPickup(lvl->width - xpos, lvl->height - ypos, 1);
         
-        if (lvl->pickups[count * 4].x == 0) {
+        if (lvl->pickups[count * 4].active == 0) {
             LVL_DestroyLevel(lvl);
             return NULL;
         }

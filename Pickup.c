@@ -5,6 +5,10 @@
 #include "stdio.h"
 #include "xorshift.h"
 
+#define PCK_COLORKEY_R 255
+#define PCK_COLORKEY_G 0
+#define PCK_COLORKEY_B 255
+
 static Pickup* AllPickups = NULL;
 static int NumPickups = 0;
 
@@ -26,10 +30,12 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
 
     int index = 0;
     int read;
-    while ((read = fscanf(file, "%*[^\"]\"%s\"%*[^:]: %f, %f, %f, %f, %f, %d, \"%s\"\n",
+    while ((read = fscanf(file, "%*[^\"]\"%[^\"]\"%*[^:]: %f, %f, %f, %f, %f, %d, \"%[^\"]\"",
                   namebuf, &CHO, &calories, &water, &alcohol, &insulin, &frequency, filebuf)) == 8) {
-        Pickup* tmp = realloc(AllPickups, NumPickups + 1);
+        Pickup* tmp = realloc(AllPickups, sizeof(Pickup) * (NumPickups + 1));
         if (tmp) {
+            printf("\"%s\": %f, %f, %f, %f, %f, %d, \"%s\"\n", namebuf, CHO, calories, water, alcohol, insulin, frequency, filebuf);
+            
             AllPickups = tmp;
             NumPickups++;
 
@@ -44,6 +50,7 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
             if (rend) {
                 SDL_Surface* tmpsurf = SDL_LoadBMP(filebuf);
                 if (tmpsurf) {
+                    SDL_SetColorKey(tmpsurf, SDL_TRUE, SDL_MapRGB(tmpsurf->format, PCK_COLORKEY_R, PCK_COLORKEY_G, PCK_COLORKEY_B));
                     AllPickups[NumPickups - 1].tex = SDL_CreateTextureFromSurface(rend, tmpsurf);
                     SDL_FreeSurface(tmpsurf);
                 }
