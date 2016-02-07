@@ -34,8 +34,6 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
                   namebuf, &CHO, &calories, &water, &alcohol, &insulin, &frequency, filebuf)) == 8) {
         Pickup* tmp = realloc(AllPickups, sizeof(Pickup) * (NumPickups + 1));
         if (tmp) {
-            printf("\"%s\": %f, %f, %f, %f, %f, %d, \"%s\"\n", namebuf, CHO, calories, water, alcohol, insulin, frequency, filebuf);
-            
             AllPickups = tmp;
             NumPickups++;
 
@@ -107,7 +105,7 @@ Pickup PCK_GetWeightedPickup(int x, int y, int active) {
     uint64_t rnd = xorshiftplus_uniform(freqtotal);
     freqtotal = 0;
     int index;
-    for (index = 0; freqtotal < rnd; index++) {
+    for (index = 0; freqtotal <= rnd; index++) {
         freqtotal += AllPickups[index].frequency;
     }
     

@@ -7,8 +7,8 @@
 #include "Level.h"
 #include "Pickup.h"
 
-#define SCREENW 1280
-#define SCREENH 720
+#define SCREENW 800
+#define SCREENH 800
 
 int main(int argc, char** argv){
     //Start SDL
@@ -258,13 +258,19 @@ int main(int argc, char** argv){
                 SDL_RenderCopy(rend, GrassTex, NULL, &sdlr);
             }
         }
-        int count;
-        for (count = 0; count < lvl->width; count++) {
-            SDL_RenderDrawLine(rend, count * stepw, 0, count * stepw, SCREENH);
-        }
-
-        for (count = 0; count < lvl->height; count++) {
-            SDL_RenderDrawLine(rend, 0, count * steph, SCREENW, count * steph);
+        
+        for (i = 0; i < lvl->numpickup; i++) {
+            if (!lvl->pickups[i].active) {
+                continue;
+            }
+            
+            SDL_Rect pickrect;
+            pickrect.x = lvl->pickups[i].x * stepw;
+            pickrect.y = lvl->pickups[i].y * steph;
+            pickrect.w = stepw;
+            pickrect.h = steph;
+            
+            SDL_RenderCopy(rend, lvl->pickups[i].tex, NULL, &pickrect);
         }
 
         SDL_SetRenderDrawColor(rend, 0, 0, 255, SDL_ALPHA_OPAQUE);

@@ -375,42 +375,38 @@ Level* LVL_Generate(int day) {
     
     int pickupw = lvl->width - 2;
     int pickuph = lvl->height - 2;
-    lvl->numpickup = (LVL_PERCENT_PICKUPS * pickupw * pickuph / 4);
-    lvl->pickups = malloc(4 * sizeof(Pickup) * lvl->numpickup);
+    lvl->numpickup = 4 * (LVL_PERCENT_PICKUPS * pickupw * pickuph / 4);
+    lvl->pickups = malloc(sizeof(Pickup) * lvl->numpickup);
     if (!lvl->pickups) {
         LVL_DestroyLevel(lvl);
         return NULL;
     }
     
-    int pos[lvl->numpickup][2];
+    int pos[lvl->numpickup / 4][2];
     
-    for (count = 0; count < lvl->numpickup; count++) {
+    for (count = 0; count < lvl->numpickup; count += 4) {
         int xpos = (int)xorshiftplus_uniform(pickupw / 2) + 1;
         int ypos = (int)xorshiftplus_uniform(pickuph / 2) + 1;
         int samecheck;
         int reset = 0;
-        for (samecheck = 0; samecheck < count; samecheck++) {
+        for (samecheck = 0; samecheck < count / 4; samecheck++) {
             if (pos[samecheck][0] == xpos && pos[samecheck][1] == ypos) {
                 reset = 1;
                 break;
             }
         }
         if (reset) {
-            count--;
+            count-=4;
             continue;
         }
-        pos[count][0] = xpos;
-        pos[count][1] = ypos;
+        pos[count / 4][0] = xpos;
+        pos[count / 4][1] = ypos;
         
-        lvl->pickups[count * 4] = PCK_GetWeightedPickup(xpos, ypos, 1);
-        lvl->pickups[count * 4 + 1] = PCK_GetWeightedPickup(lvl->width - xpos, ypos, 1);
-        lvl->pickups[count * 4 + 2] = PCK_GetWeightedPickup(xpos, lvl->height - ypos, 1);
-        lvl->pickups[count * 4 + 3] = PCK_GetWeightedPickup(lvl->width - xpos, lvl->height - ypos, 1);
+        lvl->pickups[count] = PCK_GetWeightedPickup(xpos, ypos, 1);
+        lvl->pickups[count + 1] = PCK_GetWeightedPickup(lvl->width - xpos - 1, ypos, 1);
+        lvl->pickups[count + 2] = PCK_GetWeightedPickup(xpos, lvl->height - ypos - 1, 1);
+        lvl->pickups[count + 3] = PCK_GetWeightedPickup(lvl->width - xpos - 1, lvl->height - ypos - 1, 1);
         
-        if (lvl->pickups[count * 4].active == 0) {
-            LVL_DestroyLevel(lvl);
-            return NULL;
-        }
     }
     
     return lvl;
