@@ -214,7 +214,7 @@ static void LVL_CreateQuadrantLayerPaths(Level* lvl, int layer) {
             wall.dir = DIR_DOWN;
             success = LVL_AddWall(lvl, wall, NULL);
             if (success) {
-                for (length++; length < LAYER_LENGTH && success && wall.x >= layer; length++) {
+                for (length++; length < LAYER_LENGTH && success && wall.x >= layer && wall.y < halfheight; length++) {
                     prev = wall;
                     rnd = xorshiftplus();
                     if (rnd <= (STRAIGHT_CHANCE) * UINT64_MAX) {
@@ -225,7 +225,7 @@ static void LVL_CreateQuadrantLayerPaths(Level* lvl, int layer) {
                         wall.y++;
                         wall.dir = DIR_LEFT;
                     }
-                    if (wall.x >= layer) {
+                    if (wall.x >= layer && wall.y < halfheight) {
                         success = LVL_AddWall(lvl, wall, &prev);
                     }
                     else success = 0;
@@ -255,7 +255,7 @@ static void LVL_CreateQuadrantLayerPaths(Level* lvl, int layer) {
             }
             
             if (success) {
-                for (length++; length < LAYER_LENGTH && success && wall.y < halfheight; length++) {
+                for (length++; length < LAYER_LENGTH && success && wall.y < halfheight && wall.x < halfwidth; length++) {
                     prev = wall;
                     rnd = xorshiftplus();
                     if (rnd <= (STRAIGHT_CHANCE) * UINT64_MAX) {
@@ -266,7 +266,7 @@ static void LVL_CreateQuadrantLayerPaths(Level* lvl, int layer) {
                         wall.x++;
                         wall.dir = DIR_DOWN;
                     }
-                    if (wall.y < halfheight) {
+                    if (wall.y < halfheight && wall.x < halfwidth) {
                         success = LVL_AddWall(lvl, wall, &prev);
                     }
                     else success = 0;

@@ -3,11 +3,10 @@
 #include "ExtraLayerSDL.h"
 #include "xorshift.h"
 #include "stdlib.h"
-#include "Draw.h"
 #include "Level.h"
 
-#define SCREENW 1280
-#define SCREENH 720
+#define SCREENW 800
+#define SCREENH 800
 
 int main(int argc, char** argv){
     //Start SDL

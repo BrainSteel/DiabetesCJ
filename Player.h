@@ -43,12 +43,13 @@ typedef struct sPlayer {
     Gender gender;
     float weight;
     int height;
-    char* name;
+    char name[200];
     
     /* BodyType-dependent variables */
     BodyType type;
     int ICF;
     int ISF;
+    float BMI;
     
     /* List of attributes */
     float glucose;
@@ -84,9 +85,8 @@ typedef struct sPlayer {
     
 } Player;
 
-Player* PLR_Initialize();
+Player* PLR_Initialize(Gender gender, int weight, int height, char* name);
 void PLR_UpdateHealth(Player* player, time_t frames);
-
 void PLR_MoveEntity(MovingEntity* entity, time_t frames);
 
 

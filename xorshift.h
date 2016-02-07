@@ -4,6 +4,7 @@
 
 #include "stdint.h"
 
+uint64_t xorshiftplus_uniform(uint64_t limit);
 uint64_t xorshiftplus();
 void seedxorshift(uint64_t s1, uint64_t s2);
 
