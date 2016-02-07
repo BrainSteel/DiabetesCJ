@@ -15,6 +15,7 @@
 
 #define SCREENW ((MAPW + 400))
 #define SCREENH MAPH
+#define FRAMERATE 60
 
 int main(int argc, char** argv){
     //Start SDL
@@ -23,8 +24,8 @@ int main(int argc, char** argv){
         return 1;
     }
     
-    //AUD_Sound* music = AUD_LoadWAV("Level Up.wav", 1);
-    //AUD_Play(music);
+    AUD_Sound* music = AUD_LoadWAV("Level Up.wav", 1);
+    AUD_Play(music);
 
     SDL_Window* window = NULL;
     SDL_Renderer* rend = NULL;
@@ -110,7 +111,7 @@ int main(int argc, char** argv){
 
     FNT_Font* font = FNT_InitFont(rend, "540x20Font.bmp", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 3, 4, color);
 
-    SDL_SetRenderDrawColor(rend, 255, 255, 255, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(rend);
 
     seedxorshift(time(0), SDL_GetTicks());
@@ -119,14 +120,164 @@ int main(int argc, char** argv){
     if (!lvl) {
         return 1;
     }
-
-    Player* player = PLR_Initialize(rend, lvl, GEN_MALE, 150, 74, "JESSE");
+    
+    char name[200];
+    name[0] = '\0';
+    Gender gender;
+    char cweight[200];
+    char cheight[200];
+    
+    int currentchar = 0;
+    SDL_Event input;
+    int done = 0;
+    do {
+        SDL_WaitEvent(&input);
+        
+        if (input.type == SDL_KEYDOWN) {
+            if (input.key.keysym.sym == SDLK_RETURN) {
+                done = 1;
+            }
+            else if (input.key.keysym.sym == SDLK_LSHIFT || input.key.keysym.sym == SDLK_RSHIFT) {
+                name[currentchar] = 0;
+            }
+            else if (input.key.keysym.sym == SDLK_BACKSPACE) {
+                currentchar--;
+                name[currentchar] = 0;
+            }
+            else if (input.key.keysym.sym == SDLK_SPACE) {
+                name[currentchar++] = ' ';
+                name[currentchar] = 0;
+            }
+            else {
+                name[currentchar++] = SDL_GetKeyName(input.key.keysym.sym)[0];
+                name[currentchar] = '\0';
+            }
+        }
+        else if (input.type == SDL_QUIT) {
+            return 0;
+        }
+        
+        
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(rend);
+        FNT_DrawText(rend, font, "ENTER A NAME", 0, 0, 50, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+        FNT_DrawText(rend, font, name, 0, 60, 50, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+        SDL_RenderPresent(rend);
+    } while (!done);
     
     
-    Wall prev;
-    int initialized = 0;
+    SDL_Rect mrect, frect;
+    mrect.x = SCREENW / 3;
+    mrect.y = 2 * SCREENH / 3;
+    mrect.w = 100;
+    mrect.h = 50;
+    
+    frect.x = 2 * SCREENW / 3;
+    frect.y = 2 * SCREENH / 3;
+    frect.w = 100;
+    frect.h = 50;
+    done = 0;
+    do {
+        SDL_WaitEvent(&input);
+        
+        if (input.type == SDL_MOUSEBUTTONDOWN) {
+            if (input.button.x > mrect.x && input.button.x < mrect.x + mrect.w &&
+                input.button.y > mrect.y && input.button.y < mrect.y + mrect.h) {
+                gender = GEN_MALE;
+                done = 1;
+            }
+            else if (input.button.x > frect.x && input.button.x < frect.x + frect.w &&
+                     input.button.y > frect.y && input.button.y < frect.y + frect.h) {
+                gender = GEN_FEMALE;
+                done = 1;
+            }
+        }
+        else if (input.type == SDL_QUIT) {
+            return 0;
+        }
+        
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(rend);
+        FNT_DrawText(rend, font, "SELECT A GENDER", 0, 0, 50, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+        
+        SDL_SetRenderDrawColor(rend, 0, 40, 70, SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(rend, &mrect);
+        SDL_RenderFillRect(rend, &frect);
+        
+        FNT_DrawText(rend, font, "M", mrect.x + 42, mrect.y + 10, 30, 0);
+        FNT_DrawText(rend, font, "F", frect.x + 42, frect.y + 10, 30, 0);
+        
+        
+        SDL_RenderPresent(rend);
+    } while (!done);
+    
+    done = 0;
+    currentchar = 0;
+    do {
+        SDL_WaitEvent(&input);
+        
+        if (input.type == SDL_KEYDOWN) {
+            if (input.key.keysym.sym == SDLK_RETURN) {
+                done = 1;
+            }
+            else if (input.key.keysym.sym == SDLK_BACKSPACE) {
+                currentchar--;
+                cweight[currentchar] = 0;
+            }
+            else {
+                char test = SDL_GetKeyName(input.key.keysym.sym)[0];
+                if (test >= '0' && test <= '9') {
+                    cweight[currentchar++] = test;
+                    cweight[currentchar] = 0;
+                }
+            }
+        }
+        else if (input.type == SDL_QUIT) {
+            return 0;
+        }
+        
+        
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(rend);
+        FNT_DrawText(rend, font, "ENTER A WEIGHT IN POUNDS", 0, 0, 50, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+        FNT_DrawText(rend, font, cweight, 0, 60, 50, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+        SDL_RenderPresent(rend);
+    } while (!done);
+    
+    done = 0;
+    currentchar = 0;
+    do {
+        SDL_WaitEvent(&input);
+        
+        if (input.type == SDL_KEYDOWN) {
+            if (input.key.keysym.sym == SDLK_RETURN) {
+                done = 1;
+            }
+            else if (input.key.keysym.sym == SDLK_BACKSPACE) {
+                currentchar--;
+                cheight[currentchar] = 0;
+            }
+            else {
+                char test = SDL_GetKeyName(input.key.keysym.sym)[0];
+                if (test >= '0' && test <= '9') {
+                    cheight[currentchar++] = test;
+                    cheight[currentchar] = 0;
+                }
+            }
+        }
+        else if (input.type == SDL_QUIT) {
+            return 0;
+        }
+        
+        
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(rend);
+        FNT_DrawText(rend, font, "ENTER A HEIGHT IN INCHES", 0, 0, 50, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+        FNT_DrawText(rend, font, cheight, 0, 60, 50, FNT_ALIGNCENTERX | FNT_ALIGNCENTERY);
+        SDL_RenderPresent(rend);
+    } while (!done);
 
-    Wall wall;
+    Player* player = PLR_Initialize(rend, lvl, gender, atoi(cweight), atoi(cheight), name);
 
 #define RECT_WIDTH 2
 
@@ -134,27 +285,57 @@ int main(int argc, char** argv){
     double steph = MAPH / lvl->height;
 
     SDL_Event event;
-    SDL_Rect green;
-    green.w = 0;
-    green.h = 0;
-    green.x = 0;
-    green.y = 0;
+    unsigned int time;
+    int quit = 0;
     do {
+        time = SDL_GetTicks();
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if( (event.button.x > 950 && event.button.x < 1070) && (event.button.y > 650 && event.button.y < 690) ) {
+                    LVL_DestroyLevel(lvl);
+                    lvl = LVL_Generate(0, MAPW, MAPH);
+                    PLR_DestroyPlayer(player);
+                    player = PLR_Initialize(rend, lvl, GEN_MALE, 150, 74, "JESSE");
+                }
 
-        SDL_WaitEvent(&event);
-        if (event.type == SDL_MOUSEBUTTONDOWN) {
-            player->entity.facing = DIR_GetClockwise(player->entity.facing);
-            if( (event.button.x > 950 && event.button.x < 1070) && (event.button.y > 650 && event.button.y < 690) ) {
-                LVL_DestroyLevel(lvl);
-                lvl = LVL_Generate(0, MAPW, MAPH);
-                PLR_StartNewDay(player);
             }
-
+            else if (event.type == SDL_KEYDOWN) {
+                switch (event.key.keysym.sym) {
+                    case SDLK_w:
+                        if (player->entity.facing != DIR_DOWN) {
+                            player->entity.facing = DIR_UP;
+                        }
+                        break;
+                    
+                    case SDLK_a:
+                        if (player->entity.facing != DIR_RIGHT) {
+                            player->entity.facing = DIR_LEFT;
+                        }
+                        break;
+                        
+                    case SDLK_s:
+                        if (player->entity.facing != DIR_UP) {
+                            player->entity.facing = DIR_DOWN;
+                        }
+                        break;
+                        
+                    case SDLK_d:
+                        if (player->entity.facing != DIR_LEFT) {
+                            player->entity.facing = DIR_RIGHT;
+                        }
+                        break;
+                        
+                    default:
+                        break;
+                }
+            }
+            else if(event.type == SDL_QUIT) {
+                quit = 1;
+            }
         }
-        else if (event.type == SDL_KEYDOWN) {
-            PLR_UpdateAll(player, lvl, 1);
-        }
-
+        
+        PLR_UpdateAll(player, lvl, 1);
+        
         SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(rend);
 
@@ -249,7 +430,7 @@ int main(int argc, char** argv){
 
         SDL_RenderDrawLine(rend, 799, 0, 1199, 0);
         SDL_RenderFillRect(rend, &HUB_Title);
-        FNT_DrawText(rend, font, "PLAYER NAME", 800, 700, 30, 0);
+        FNT_DrawText(rend, font, player->name, 800, 700, 30, 0);
         FNT_DrawText(rend, font, "PRESS CNTRL TO SPRINT", 800, 5, 20, 0);
         FNT_DrawText(rend, font, "ATTRIBUTES", 880, 50, 30, 0);
 
@@ -258,25 +439,25 @@ int main(int argc, char** argv){
         SDL_Rect Attribute_HUB;
             Attribute_HUB.x = 799;
             Attribute_HUB.y = 100;
-            Attribute_HUB.w = stepw * 20;
+            Attribute_HUB.w = player->hydration * 4;
             Attribute_HUB.h = steph;
 
         SDL_Rect Attribute_HUB2;
             Attribute_HUB2.x = 799;
             Attribute_HUB2.y = 125;
-            Attribute_HUB2.w = stepw * 20;
+            Attribute_HUB2.w = player->CHO * 2;
             Attribute_HUB2.h = steph;
 
         SDL_Rect Attribute_HUB3;
             Attribute_HUB3.x = 799;
             Attribute_HUB3.y = 150;
-            Attribute_HUB3.w = stepw * 20;
+            Attribute_HUB3.w = player->glucose * 2;
             Attribute_HUB3.h = steph;
 
         SDL_Rect Attribute_HUB4;
             Attribute_HUB4.x = 799;
             Attribute_HUB4.y = 175;
-            Attribute_HUB4.w = stepw * 20;
+            Attribute_HUB4.w = player->alcohol * 50;
             Attribute_HUB4.h = steph;
 
         SDL_Rect pickrect2;
@@ -300,7 +481,7 @@ int main(int argc, char** argv){
         SDL_SetRenderDrawColor(rend, 0, 0, 150, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(rend, &Attribute_HUB2);
         SDL_SetRenderDrawColor(rend, 255, 0, 0, SDL_ALPHA_OPAQUE);
-        FNT_DrawText(rend, font, "CALORIES", 900, 125, 20, 0);
+        FNT_DrawText(rend, font, "CARBOHYDRATES", 900, 125, 20, 0);
         SDL_RenderCopy(rend, Doughnuttex, NULL, &pickrect3);
 
         SDL_Rect pickrect4;
@@ -340,7 +521,14 @@ int main(int argc, char** argv){
                 pickrect6.h = steph;
                 SDL_RenderCopy(rend, Hearttex, NULL, &pickrect6);
         }
-
+        SDL_Rect vitrect;
+        vitrect.x = 1000;
+        vitrect.y = 200;
+        vitrect.w = 100 - 10 * player->vitality;
+        vitrect.h = steph;
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(rend, &vitrect);
+        
         SDL_Rect Attribute_Sleep;
             Attribute_Sleep.x = 800;
             Attribute_Sleep.y = 225;
@@ -349,8 +537,16 @@ int main(int argc, char** argv){
 
         SDL_SetRenderDrawColor(rend, 255, 0, 0, SDL_ALPHA_OPAQUE);
         FNT_DrawText(rend, font, "LAST NIGHT SLEEP" , 800, 225, 20, 0);
-
-        SDL_RenderFillRect(rend, &green);
+        char buf[200];
+        sprintf(buf, "%d HOURS", (int)player->sleep);
+        FNT_DrawText(rend, font, buf, 800, 250, 20, 0);
+        
+        sprintf(buf, "%d INCHES TALL", player->height);
+        FNT_DrawText(rend, font, buf, 800, 275, 20, 0);
+        sprintf(buf, "%d POUNDS IN WEIGHT", (int)player->weight);
+        FNT_DrawText(rend, font, buf, 800, 300, 20, 0);
+        sprintf(buf, "%d HOURS REMAINING", 24 - player->lasthour);
+        FNT_DrawText(rend, font, buf, 800, 325, 20, 0);
         
         SDL_Rect prect;
         prect.x = player->entity.x - player->entity.width / 2;
@@ -361,6 +557,16 @@ int main(int argc, char** argv){
 
         SDL_RenderPresent(rend);
 
+        if(SDL_GetTicks() - time < (unsigned)1000/FRAMERATE) {
+#ifdef FORCE_TIME
+            timeBeginPeriod(1);
+#endif
+            SDL_Delay(((1000/FRAMERATE) - (SDL_GetTicks() - time)));
+#ifdef FORCE_TIME
+            timeEndPeriod(1);
+#endif
+        }
+        
     } while (event.type != SDL_QUIT);
     
     PLR_DestroyPlayer(player);
@@ -388,8 +594,4 @@ int main(int argc, char** argv){
 
 
 }
-
-
-
-
 

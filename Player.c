@@ -4,7 +4,7 @@
 #include "string.h"
 #include "Level.h"
 
-#define ACCEPTABLE_ERROR 5
+#define ACCEPTABLE_ERROR 4
 
 Player* PLR_Initialize(SDL_Renderer* rend, Level* lvl, Gender gender, int weight, int height, const char* name) {
     
@@ -209,7 +209,7 @@ void PLR_StartNewDay(Player* player) {
     
     
     /* Set up daily constants */
-    player->vitality = 100;
+    player->vitality = 5;
     player->blocksran = 0;
     player->blocksconsecutive = 0;
     player->alcohol = 0;
@@ -238,7 +238,7 @@ void PLR_StartNewDay(Player* player) {
 }
 
 void PLR_UpdateAll(Player* player, Level* lvl, time_t frames) {
-//    PLR_UpdateHealth(player, frames);
+    PLR_UpdateHealth(player, frames);
     PLR_MoveEntity((MovingEntity*)player, lvl, frames, 1);
 }
 
@@ -292,6 +292,15 @@ void PLR_UpdateHealth(Player* player, time_t frames) {
                 glucose += CHO;
                 break;
         }
+        if (glucose < 140 && glucose > 100 && hydration > 20) {
+            player->vitality++;
+            if (player->vitality > 10) {
+                player->vitality = 10;
+            }
+        }
+        else {
+            player->vitality--;
+        }
     }
     
     float stress = player->stress + player->illness;
@@ -337,9 +346,9 @@ void PLR_UpdateHealth(Player* player, time_t frames) {
 
     
     /* Update the player with new data */
-    player->glucose = glucose;
-    player->hydration = hydration;
-    player->CHO = CHO;
+    player->glucose = glucose > 0 ? glucose : 0;
+    player->hydration = hydration > 0 ? hydration : 0;
+    player->CHO = CHO > 0 ? CHO : 0;
     player->stress = stress;
     player->sensitivity = sensitivity;
 }
@@ -364,22 +373,48 @@ void PLR_MoveEntity(MovingEntity* entity, Level* lvl, time_t frames, int entityp
     int py = cur.y * lvl->cellheight + lvl->cellheight / 2;
     int ishorizontal = entity->facing == DIR_LEFT || entity->facing == DIR_RIGHT;
     
-    float movementleft = frames * entity->speed;
+    float movementleft;
+    if (ishorizontal) {
+        movementleft = frames * entity->speed * lvl->cellwidth;
+    }
+    else movementleft = frames * entity->speed * lvl->cellheight;
+    
     while (movementleft > 0) {
         float move = 0;
+        int breakloop = 1;
         if (ishorizontal) {
-            movementleft = frames * entity->speed * lvl->cellwidth;
-            if (!DIR_ContainsDirection(cur.mask, entity->facing) && abs((int)(py - entity->y)) < ACCEPTABLE_ERROR) {
-                move = px + lvl->cellwidth - entity->x;
+            move = abs(px - (int)entity->x);
+            if (abs(py - (int)entity->y) < ACCEPTABLE_ERROR) {
+                if (!DIR_ContainsDirection(cur.mask, entity->facing)) {
+                    move += lvl->cellwidth;
+                    breakloop = 0;
+                }
             }
-            else break;
+            else {
+                Cell adj = py < entity->y ? LVL_GetCell(lvl, entity->tilex, entity->tiley - 1) : LVL_GetCell(lvl, entity->tilex, entity->tiley + 1);
+                if (!DIR_ContainsDirection(cur.mask, entity->facing) && !DIR_ContainsDirection(adj.mask, entity->facing &&
+                    (py < entity->y ? !DIR_ContainsDirection(cur.mask, DIR_UP) : !DIR_ContainsDirection(cur.mask, DIR_DOWN)))) {
+                    move += lvl->cellwidth;
+                    breakloop = 0;
+                }
+            }
         }
         else {
-            movementleft = frames * entity->speed * lvl->cellwidth;
-            if (!DIR_ContainsDirection(cur.mask, entity->facing) && abs((int)(px - entity->x)) < ACCEPTABLE_ERROR) {
-                move = py + lvl->cellwidth - entity->y;
+            move = abs(py - (int)entity->y);
+            if (abs(px - (int)entity->x) < ACCEPTABLE_ERROR) {
+                if (!DIR_ContainsDirection(cur.mask, entity->facing)) {
+                    move += lvl->cellheight;
+                    breakloop = 0;
+                }
             }
-            else break;
+            else {
+                Cell adj = px < entity->x ? LVL_GetCell(lvl, entity->tilex + 1, entity->tiley) : LVL_GetCell(lvl, entity->tilex - 1, entity->tiley);
+                if (!DIR_ContainsDirection(cur.mask, entity->facing) && !DIR_ContainsDirection(adj.mask, entity->facing) &&
+                   (px < entity->x ? !DIR_ContainsDirection(cur.mask, DIR_RIGHT) : !DIR_ContainsDirection(cur.mask, DIR_LEFT))) {
+                    move += lvl->cellheight;
+                    breakloop = 0;
+                }
+            }
         }
         move = move > movementleft ? movementleft : move;
         movementleft -= move;
@@ -397,6 +432,10 @@ void PLR_MoveEntity(MovingEntity* entity, Level* lvl, time_t frames, int entityp
         
         px = cur.x * lvl->cellwidth + lvl->cellwidth / 2;
         py = cur.y * lvl->cellheight + lvl->cellheight / 2;
+        
+        if (breakloop) {
+            break;
+        }
     }
 }
 
