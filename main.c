@@ -1,16 +1,18 @@
 //#define NOLOGCHANGE
 //#define NOINITCHANGE
-#include "SDL.h"
+#include "ExtraLayerSDL.h"
+#include "time.h"
 #include "xorshift.h"
 #include "stdlib.h"
 #include "Level.h"
+#include "Pickup.h"
 
-#define SCREENW 1280
-#define SCREENH 720
+#define SCREENW 800
+#define SCREENH 800
 
 int main(int argc, char** argv){
     //Start SDL
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0){
+    if (Extra_SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         printf("SDL Failed Initialization!");
         return 1;
     }
@@ -18,7 +20,15 @@ int main(int argc, char** argv){
     SDL_Window* window = NULL;
     SDL_Renderer* rend = NULL;
     SDL_CreateWindowAndRenderer(SCREENW, SCREENH, SDL_WINDOW_SHOWN, &window, &rend);
-
+    
+    int numinit = PCK_InitializeFromFile("PickUps_Config.txt", rend);
+    if (numinit <= 0) {
+        printf("Failed to initialize Pickups!\n");
+    }
+    
+    SDL_Event wait;
+    SDL_WaitEvent(&wait);
+    
     SDL_Surface* GRASS = SDL_LoadBMP("GRASS.bmp");
     if(!GRASS)
     {
@@ -97,17 +107,24 @@ int main(int argc, char** argv){
     SDL_FreeSurface(Death_F);
     SDL_FreeSurface(Death_B);
     SDL_FreeSurface(Death_R);
+    SDL_FreeSurface(Man_F);
+    SDL_FreeSurface(Man_B);
+    SDL_FreeSurface(Man_R);
+    SDL_FreeSurface(Woman_F);
+    SDL_FreeSurface(Woman_B);
+    SDL_FreeSurface(Woman_R);
 
     SDL_SetRenderDrawColor(rend, 255, 255, 255, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(rend);
 
     seedxorshift(time(0), SDL_GetTicks());
 
-
+    SDL_WaitEvent(&wait);
     Level* lvl = LVL_Generate(0);
     if (!lvl) {
         return 1;
     }
+    SDL_WaitEvent(&wait);
 
     Wall prev;
     int initialized = 0;
@@ -241,13 +258,19 @@ int main(int argc, char** argv){
                 SDL_RenderCopy(rend, GrassTex, NULL, &sdlr);
             }
         }
-        int count;
-        for (count = 0; count < lvl->width; count++) {
-            SDL_RenderDrawLine(rend, count * stepw, 0, count * stepw, SCREENH);
-        }
-
-        for (count = 0; count < lvl->height; count++) {
-            SDL_RenderDrawLine(rend, 0, count * steph, SCREENW, count * steph);
+        
+        for (i = 0; i < lvl->numpickup; i++) {
+            if (!lvl->pickups[i].active) {
+                continue;
+            }
+            
+            SDL_Rect pickrect;
+            pickrect.x = lvl->pickups[i].x * stepw;
+            pickrect.y = lvl->pickups[i].y * steph;
+            pickrect.w = stepw;
+            pickrect.h = steph;
+            
+            SDL_RenderCopy(rend, lvl->pickups[i].tex, NULL, &pickrect);
         }
 
         SDL_SetRenderDrawColor(rend, 0, 0, 255, SDL_ALPHA_OPAQUE);
@@ -297,10 +320,19 @@ int main(int argc, char** argv){
         SDL_RenderPresent(rend);
 
     } while (event.type != SDL_QUIT);
+    
+    SDL_DestroyTexture(GrassTex);
+    SDL_DestroyTexture(Death_Ftex);
+    SDL_DestroyTexture(Death_Btex);
+    SDL_DestroyTexture(Death_Rtex);
+    SDL_DestroyTexture(Man_Ftex);
+    SDL_DestroyTexture(Man_Btex);
+    SDL_DestroyTexture(Man_Rtex);
+    SDL_DestroyTexture(Woman_Ftex);
+    SDL_DestroyTexture(Woman_Btex);
+    SDL_DestroyTexture(Woman_Rtex);
 
-
-    free(lvl->grid);
-    free(lvl);
+    LVL_DestroyLevel(lvl);
 
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(rend);

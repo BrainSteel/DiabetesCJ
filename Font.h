@@ -1,13 +1,6 @@
-//
-//  Font.h
-//  Just For Nybbles
-//
-//  Created by Jesse Pritchard on 1/21/15.
-//  Copyright (c) 2015 Jesse Pritchard. All rights reserved.
-//
 
-#ifndef __Just_For_Nybbles__Font__
-#define __Just_For_Nybbles__Font__
+#ifndef __Font__
+#define __Font__
 
 #include "SDL.h"
 
@@ -37,4 +30,4 @@ FNT_Font* FNT_InitFont(SDL_Renderer* rend, const char* file, const char* charlis
 int FNT_DrawText(SDL_Renderer* rend, FNT_Font* font, char* text, int xoff, int yoff, int pxtall, int flags);
 void FNT_DestroyFont(FNT_Font* font);
 
-#endif /* defined(__Just_For_Nybbles__Font__) */
+#endif /* defined(__Font__) */

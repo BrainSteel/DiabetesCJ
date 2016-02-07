@@ -282,7 +282,6 @@ static void LVL_CreateQuadrantLayerPaths(Level* lvl, int layer) {
 
 Level* LVL_Generate(int day) {
 
-    
     Level* lvl = malloc(sizeof(Level));
     if (!lvl) return NULL;
     
@@ -374,6 +373,42 @@ Level* LVL_Generate(int day) {
         }
     }
     
+    int pickupw = lvl->width - 2;
+    int pickuph = lvl->height - 2;
+    lvl->numpickup = 4 * (LVL_PERCENT_PICKUPS * pickupw * pickuph / 4);
+    lvl->pickups = malloc(sizeof(Pickup) * lvl->numpickup);
+    if (!lvl->pickups) {
+        LVL_DestroyLevel(lvl);
+        return NULL;
+    }
+    
+    int pos[lvl->numpickup / 4][2];
+    
+    for (count = 0; count < lvl->numpickup; count += 4) {
+        int xpos = (int)xorshiftplus_uniform(pickupw / 2) + 1;
+        int ypos = (int)xorshiftplus_uniform(pickuph / 2) + 1;
+        int samecheck;
+        int reset = 0;
+        for (samecheck = 0; samecheck < count / 4; samecheck++) {
+            if (pos[samecheck][0] == xpos && pos[samecheck][1] == ypos) {
+                reset = 1;
+                break;
+            }
+        }
+        if (reset) {
+            count-=4;
+            continue;
+        }
+        pos[count / 4][0] = xpos;
+        pos[count / 4][1] = ypos;
+        
+        lvl->pickups[count] = PCK_GetWeightedPickup(xpos, ypos, 1);
+        lvl->pickups[count + 1] = PCK_GetWeightedPickup(lvl->width - xpos - 1, ypos, 1);
+        lvl->pickups[count + 2] = PCK_GetWeightedPickup(xpos, lvl->height - ypos - 1, 1);
+        lvl->pickups[count + 3] = PCK_GetWeightedPickup(lvl->width - xpos - 1, lvl->height - ypos - 1, 1);
+        
+    }
+    
     return lvl;
 }
 
@@ -439,4 +474,16 @@ void LVL_AddToCellMask(Level* lvl, int x, int y, Direction dir) {
     }
     
     DIR_AddDirection(&lvl->grid[y * lvl->width + x].mask, dir);
+}
+
+void LVL_DestroyLevel(Level* lvl) {
+    if (lvl->grid) {
+        free(lvl->grid);
+    }
+    
+    if (lvl->pickups) {
+        free(lvl->pickups);
+    }
+    
+    free(lvl);
 }

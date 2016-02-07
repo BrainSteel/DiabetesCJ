@@ -10,6 +10,10 @@
 uint64_t s[2];
 
 uint64_t xorshiftplus_uniform(uint64_t limit) {
+    if (!limit) {
+        return 0;
+    }
+    
     uint64_t rnd = xorshiftplus();
     while (rnd > UINT64_MAX - (UINT64_MAX % limit)) {
         rnd = xorshiftplus();

@@ -35,8 +35,8 @@ typedef struct sPickup{
 int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend);
 int PCK_InitializeCopy(Pickup* pickups, int num);
 int PCK_AddPickup(Pickup add);
-Pickup PCK_GetWeightedPickup();
-Pickup PCK_GetUnweightedPickup();
+Pickup PCK_GetWeightedPickup(int x, int y, int active);
+Pickup PCK_GetUnweightedPickup(int x, int y, int active);
 Pickup* PCK_GetAllPickups(int* num);
 void PCK_FreePickups();
 
