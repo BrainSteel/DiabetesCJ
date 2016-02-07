@@ -37,9 +37,11 @@ typedef struct sMovingEntity {
 
 #define TIME_FACTOR 150
 #define SECONDS_TO_MINUTES ((TIME_FACTOR / 60.0))
+
 #define PLAYER_SPEED 0.1
 #define DEATH_SPEED 0.2
 #define SPRINT_SPEED 0.4
+
 
 typedef struct sPlayer {
     MovingEntity entity;

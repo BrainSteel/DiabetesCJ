@@ -39,7 +39,7 @@ Player* PLR_Initialize(SDL_Renderer* rend, Level* lvl, Gender gender, int weight
         player->ICF = 5;
         player->ISF = 5;
     }
-    
+
     Uint8 r, g, b, a;
     SDL_GetRenderDrawColor(rend, &r, &g, &b, &a);
     SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_TRANSPARENT);
@@ -124,7 +124,7 @@ Player* PLR_Initialize(SDL_Renderer* rend, Level* lvl, Gender gender, int weight
     player->deftilex = lvl->width / 2;
     player->deftiley = 0;
     player->entity.speed = PLAYER_SPEED;
-    
+
     player->glucose = 130;
     player->hydration = 72;
     player->illness = 0;
