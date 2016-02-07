@@ -3,3 +3,5 @@ SDL/lib/*
 SDL/include/*
 TriangleCollisions/*
 DiaCat-Info.plist
+bin/*
+obj/*

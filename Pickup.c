@@ -15,15 +15,15 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
         printf("ERROR: Failed to load config file: %s\n", config);
         return -1;
     }
-    
-    
+
+
     char namebuf[200];
-    
+
     float CHO, calories, water, alcohol, insulin;
     int frequency;
-    
+
     char filebuf[200];
-    
+
     int index = 0;
     int read;
     while ((read = fscanf(file, "%*[^\"]\"%s\"%*[^:]: %f, %f, %f, %f, %f, %d, \"%s\"\n",
@@ -32,15 +32,15 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
         if (tmp) {
             AllPickups = tmp;
             NumPickups++;
-            
+
             AllPickups[NumPickups - 1].active = 0;
             AllPickups[NumPickups - 1].x = 0;
             AllPickups[NumPickups - 1].y = 0;
             AllPickups[NumPickups - 1].ID = index;
-            
+
             strcpy(AllPickups[NumPickups - 1].name, namebuf);
             strcpy(AllPickups[NumPickups - 1].file, filebuf);
-            
+
             if (rend) {
                 SDL_Surface* tmpsurf = SDL_LoadBMP(filebuf);
                 if (tmpsurf) {
@@ -51,14 +51,14 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
                     printf("ERROR: Failed to load bmp: %s\n", filebuf);
                 }
             }
-            
+
             AllPickups[NumPickups - 1].CHOmod = CHO;
             AllPickups[NumPickups - 1].caloriesmod = calories;
             AllPickups[NumPickups - 1].watermod = water;
             AllPickups[NumPickups - 1].alcoholmod = alcohol;
             AllPickups[NumPickups - 1].insulinmod = insulin;
             AllPickups[NumPickups - 1].frequency = frequency;
-            
+
             index++;
         }
         else return NumPickups;
@@ -67,7 +67,6 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
     if (NumPickups == 0) {
         printf("ERROR: Failed to read any pickup data. %d items total read.\n", read);
     }
-    
     fclose(file);
     return NumPickups;
 }
@@ -97,7 +96,7 @@ Pickup PCK_GetWeightedPickup(int x, int y, int active) {
     for (count = 0; count < NumPickups; count++) {
         freqtotal += AllPickups[count].frequency;
     }
-    
+
     uint64_t rnd = xorshiftplus_uniform(freqtotal);
     freqtotal = 0;
     int index;
