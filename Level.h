@@ -3,12 +3,12 @@
 #define Level_h
 
 #include "SDL.h"
-#include "Attribute.h"
 #include "Direction.h"
 #include "Pickup.h"
 
 #define LVL_WIDTH 40
 #define LVL_HEIGHT 40
+#define LVL_PERCENT_PICKUPS 0.10
 
 typedef struct sWall {
     int x, y;
@@ -29,8 +29,8 @@ typedef struct sLevel {
 
     int day;
     
-    AttributeEnum* type;
-    int numtype;
+    Pickup* pickups;
+    int numpickup;
     
 } Level;
 

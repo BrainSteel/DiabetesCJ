@@ -12,6 +12,7 @@ static int NumPickups = 0;
 int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
     FILE* file = fopen(config, "r");
     if (!file) {
+        printf("ERROR: Failed to load config file: %s\n", config);
         return -1;
     }
     
@@ -24,9 +25,9 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
     char filebuf[200];
     
     int index = 0;
-    
-    while (fscanf(file, "%*[^\"]\"%s\"%*[^:]: %f, %f, %f, %f, %f, %d, \"%s\"\n",
-                  namebuf, &CHO, &calories, &water, &alcohol, &insulin, &frequency, filebuf) == 8) {
+    int read;
+    while ((read = fscanf(file, "%*[^\"]\"%s\"%*[^:]: %f, %f, %f, %f, %f, %d, \"%s\"\n",
+                  namebuf, &CHO, &calories, &water, &alcohol, &insulin, &frequency, filebuf)) == 8) {
         Pickup* tmp = realloc(AllPickups, NumPickups + 1);
         if (tmp) {
             AllPickups = tmp;
@@ -46,6 +47,9 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
                     AllPickups[NumPickups - 1].tex = SDL_CreateTextureFromSurface(rend, tmpsurf);
                     SDL_FreeSurface(tmpsurf);
                 }
+                else {
+                    printf("ERROR: Failed to load bmp: %s\n", filebuf);
+                }
             }
             
             AllPickups[NumPickups - 1].CHOmod = CHO;
@@ -60,11 +64,34 @@ int PCK_InitializeFromFile(const char* config, SDL_Renderer* rend) {
         else return NumPickups;
     }
     
+    if (NumPickups == 0) {
+        printf("ERROR: Failed to read any pickup data. %d items total read.\n", read);
+    }
+    
+    fclose(file);
     return NumPickups;
 }
 
 
-Pickup PCK_GetWeightedPickup() {
+Pickup PCK_GetWeightedPickup(int x, int y, int active) {
+    if (!AllPickups) {
+        Pickup product;
+        product.x = 0;
+        product.y = 0;
+        product.ID = 0;
+        product.frequency = 0;
+        product.file[0] = '\0';
+        product.name[0] = '\0';
+        product.insulinmod = 0;
+        product.watermod = 0;
+        product.CHOmod = 0;
+        product.caloriesmod = 0;
+        product.alcoholmod = 0;
+        product.active = 0;
+        product.tex = NULL;
+        return product;
+    }
+    
     int freqtotal = 0;
     int count;
     for (count = 0; count < NumPickups; count++) {
@@ -78,11 +105,38 @@ Pickup PCK_GetWeightedPickup() {
         freqtotal += AllPickups[index].frequency;
     }
     
-    return AllPickups[index - 1];
+    Pickup product = AllPickups[index - 1];
+    product.x = x;
+    product.y = y;
+    product.active = active;
+    
+    return product;
 }
 
-Pickup PCK_GetUnweightedPickup() {
-    return AllPickups[xorshiftplus_uniform(NumPickups)];
+Pickup PCK_GetUnweightedPickup(int x, int y, int active) {
+    if (!AllPickups) {
+        Pickup product;
+        product.x = 0;
+        product.y = 0;
+        product.ID = 0;
+        product.frequency = 0;
+        product.file[0] = '\0';
+        product.name[0] = '\0';
+        product.insulinmod = 0;
+        product.watermod = 0;
+        product.CHOmod = 0;
+        product.caloriesmod = 0;
+        product.alcoholmod = 0;
+        product.active = 0;
+        product.tex = NULL;
+        return product;
+    }
+    
+    Pickup product = AllPickups[xorshiftplus_uniform(NumPickups)];
+    product.x = x;
+    product.y = y;
+    product.active = active;
+    return product;
 }
 
 Pickup* PCK_GetAllPickups(int* num) {

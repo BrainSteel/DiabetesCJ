@@ -3,6 +3,7 @@
 #define Player_h
 
 #include "SDL.h"
+#include "Level.h"
 #include "Direction.h"
 
 
@@ -15,7 +16,8 @@ typedef enum eGender {
 typedef enum eBodyType {
     BT_LEAN,
     BT_STANDARD,
-    BT_OVERWEIGHT
+    BT_OVERWEIGHT,
+    BT_OBESE
 } BodyType;
 
 typedef struct sMovingEntity {
@@ -85,7 +87,7 @@ typedef struct sPlayer {
     
 } Player;
 
-Player* PLR_Initialize(Gender gender, int weight, int height, char* name);
+Player* PLR_Initialize(Level* lvl, Gender gender, int weight, int height, const char* name);
 void PLR_UpdateHealth(Player* player, time_t frames);
 void PLR_MoveEntity(MovingEntity* entity, time_t frames);
 

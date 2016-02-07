@@ -1,4 +1,5 @@
 DiaCat.xcodeproj
-SDL/*
+SDL/lib/*
+SDL/include/*
 TriangleCollisions/*
 DiaCat-Info.plist
